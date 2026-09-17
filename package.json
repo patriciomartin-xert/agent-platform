@@ -4,6 +4,7 @@
   "description": "OmniJourney AI SaaS Platform Unified Workspace",
   "main": "core/server.js",
   "scripts": {
+    "postinstall": "cd core && npm install",
     "build": "cd core && npm install",
     "start": "cd core && node server.js"
   },
