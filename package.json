@@ -1,0 +1,13 @@
+{
+  "name": "omnijourney-platform",
+  "version": "1.0.0",
+  "description": "OmniJourney AI SaaS Platform Unified Workspace",
+  "main": "core/server.js",
+  "scripts": {
+    "build": "cd core && npm install",
+    "start": "cd core && node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
