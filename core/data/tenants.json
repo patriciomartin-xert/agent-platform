@@ -1,0 +1,84 @@
+{
+  "mi-empresa": {
+    "tenantId": "mi-empresa",
+    "companyName": "Pilot Logistics Corp",
+    "primaryColor": "#004B87",
+    "secondaryColor": "#FF6B35",
+    "logoUrl": "https://cdn-icons-png.flaticon.com/512/2850/2850555.png",
+    "toneOfVoice": "Empático, formal, altamente profesional y de negocios.",
+    "welcomeMessage": "¡Hola! Bienvenido al canal inteligente de Pilot Logistics Corp. ¿En qué podemos ayudarte hoy?",
+    "faqs": [
+      { "question": "¿Qué servicios ofrecen?", "answer": "Ofrecemos transporte marítimo, aéreo, consolidación de carga y despachos aduaneros." },
+      { "question": "¿Cuáles son las tarifas base?", "answer": "La tarifa base para carga consolidada nacional inicia en $150 USD por metro cúbico." },
+      { "question": "¿Cómo rastreo mi envío?", "answer": "Puedes rastrearlo a través de nuestra consola de operaciones usando tu ID de guía único." }
+    ],
+    "rules": {
+      "stages": {
+        "Prospect": {
+          "name": "Ventas de Logística - Pilot Logistics Corp",
+          "goals": ["Explicar fletes consolidados", "Vender seguro de carga", "Capturar Email corporativo"],
+          "prompt_instructions": "Posiciona a Pilot Logistics como líder en transportes marítimos y aéreos consolidados. Siempre ofrece una cotización preliminar rápida si proporcionan el peso estimado."
+        },
+        "New Customer": {
+          "name": "Onboarding Logístico - Pilot Logistics Corp",
+          "goals": ["Solicitar RFC o TAX ID", "Solicitar Poder Notarial del representante legal"],
+          "prompt_instructions": "Solicita amablemente el RFC y Comprobante de Domicilio para completar el registro de importador/exportador."
+        },
+        "Active Customer": {
+          "name": "Operaciones y Mesa de Control - Pilot Logistics Corp",
+          "goals": ["Verificar guías de rastreo", "Crear folios por incidencias de aduana"],
+          "prompt_instructions": "Mantén comunicación constante sobre demoras aduanales o liberación de contenedores. Ante cualquier molestia, crea un ticket de soporte inmediatamente."
+        }
+      }
+    },
+    "config": {
+      "features": {
+        "salesforce_sync": true,
+        "document_uploads": true,
+        "dashboard_telemetry": true
+      },
+      "allowed_documents": ["RFC", "Poder Notarial", "Identificacion Oficial del Representante Legal"]
+    }
+  },
+  "clinica-dental": {
+    "tenantId": "clinica-dental",
+    "companyName": "DentisSmile",
+    "primaryColor": "#14B8A6",
+    "secondaryColor": "#F43F5E",
+    "logoUrl": "https://cdn-icons-png.flaticon.com/512/3467/3467831.png",
+    "toneOfVoice": "Cálido, amigable, tranquilizador y muy claro.",
+    "welcomeMessage": "¡Hola! Bienvenido a DentisSmile. Estamos aquí para cuidar de tu sonrisa. ¿Deseas agendar una cita de valoración?",
+    "faqs": [
+      { "question": "¿Cuál es el horario de atención?", "answer": "Atendemos de Lunes a Viernes de 8:00 AM a 8:00 PM, y Sábados de 9:00 AM a 2:00 PM." },
+      { "question": "¿Aceptan seguros de gastos médicos?", "answer": "Sí, trabajamos con MetLife, AXA, Seguros Monterrey y GNP." },
+      { "question": "¿Tienen financiamiento?", "answer": "Sí, ofrecemos hasta 12 meses sin intereses en tratamientos de ortodoncia e implantes." }
+    ],
+    "rules": {
+      "stages": {
+        "Prospect": {
+          "name": "Agendamiento & Ventas",
+          "goals": ["Ofrecer consulta de valoración gratuita", "Guardar email y teléfono"],
+          "prompt_instructions": "Muestra mucha empatía y cuidado por la salud dental del paciente. Explica las facilidades de pago."
+        },
+        "New Customer": {
+          "name": "Historial Médico",
+          "goals": ["Preguntar alergias", "Registrar antecedentes dentales"],
+          "prompt_instructions": "Pide amablemente al usuario responder un cuestionario breve sobre alergias o si toma algún medicamento."
+        },
+        "Active Customer": {
+          "name": "Soporte Paciente",
+          "goals": ["Resolver dudas post-tratamiento", "Atender quejas de dolor"],
+          "prompt_instructions": "Si un paciente reporta dolor intenso posterior a un tratamiento, indícale de inmediato las medidas primarias y crea un ticket de urgencia."
+        }
+      }
+    },
+    "config": {
+      "features": {
+        "salesforce_sync": true,
+        "document_uploads": true,
+        "dashboard_telemetry": true
+      },
+      "allowed_documents": ["Historial Clinico", "Identificacion Oficial"]
+    }
+  }
+}

@@ -1,0 +1,19 @@
+{
+  "stages": {
+    "Prospect": {
+      "name": "Ventas y Prospección",
+      "goals": ["Explicar servicios básicos", "Cotizar servicios", "Obtener datos de contacto"],
+      "prompt_instructions": "Sé sumamente persuasivo, enfócate en los beneficios principales del servicio. No dejes que la conversación decaiga sin sugerir registrar un contacto."
+    },
+    "New Customer": {
+      "name": "Onboarding y Activación",
+      "goals": ["Solicitar identificación oficial", "Explicar el proceso de inicio"],
+      "prompt_instructions": "Mantén un tono de guía profesional y amigable. Explica que la subida del documento es 100% segura."
+    },
+    "Active Customer": {
+      "name": "Soporte y Operación",
+      "goals": ["Resolver dudas técnicas", "Registrar reportes", "Proporcionar estatus de envíos"],
+      "prompt_instructions": "Soporte técnico inmediato. Sé directo y busca resolver el problema en el primer contacto."
+    }
+  }
+}

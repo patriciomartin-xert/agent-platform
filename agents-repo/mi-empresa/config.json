@@ -1,0 +1,12 @@
+{
+  "features": {
+    "salesforce_sync": true,
+    "document_uploads": true,
+    "dashboard_telemetry": true
+  },
+  "allowed_documents": [
+    "RFC",
+    "Poder Notarial",
+    "Identificacion Oficial del Representante Legal"
+  ]
+}

@@ -1,0 +1,15 @@
+require('dotenv').config({ path: '../.env' });
+
+module.exports = {
+  PORT: process.env.PORT || 3000,
+  GEMINI_API_KEY: process.env.GEMINI_API_KEY || '',
+  SALESFORCE: {
+    CLIENT_ID: process.env.SALESFORCE_CLIENT_ID || 'MOCK_SF_CLIENT_ID',
+    CLIENT_SECRET: process.env.SALESFORCE_CLIENT_SECRET || 'MOCK_SF_CLIENT_SECRET',
+    USERNAME: process.env.SALESFORCE_USERNAME || 'MOCK_SF_USERNAME',
+    PASSWORD: process.env.SALESFORCE_PASSWORD || 'MOCK_SF_PASSWORD'
+  },
+  GOOGLE_SERVICE_ACCOUNT_KEY: process.env.GOOGLE_SERVICE_ACCOUNT_KEY || '',
+  IS_MOCK_SHEETS: !process.env.GOOGLE_SERVICE_ACCOUNT_KEY,
+  IS_MOCK_SALESFORCE: !process.env.SALESFORCE_CLIENT_ID || process.env.SALESFORCE_CLIENT_ID === 'MOCK_SF_CLIENT_ID'
+};

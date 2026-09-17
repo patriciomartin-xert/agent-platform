@@ -1,0 +1,13 @@
+{
+  "features": {
+    "salesforce_sync": true,
+    "document_uploads": true,
+    "dashboard_telemetry": true
+  },
+  "allowed_documents": [
+    "Identificacion Oficial",
+    "RFC",
+    "Comprobante de Domicilio",
+    "Contrato Firmado"
+  ]
+}
