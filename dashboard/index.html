@@ -3,11 +3,11 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>OmniJourney - Studio Console</title>
+  <title>Darwin Ai - Portal de Clientes</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
   
-  <!-- React 18 & Babel CDN for native modern JSX processing -->
+  <!-- React 18 & Babel CDN -->
   <script src="https://unpkg.com/react@18/umd/react.development.js" crossorigin></script>
   <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js" crossorigin></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
@@ -15,25 +15,7 @@
   <style>
     body {
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background-color: #050406;
-      overflow: hidden;
-    }
-    .eleven-panel {
-      background-color: #0c0b0f;
-      border: 1px solid #1c1a22;
-    }
-    .eleven-input {
-      background-color: #050406;
-      border: 1px solid #1c1a22;
-      transition: all 0.2s ease;
-    }
-    .eleven-input:focus {
-      border-color: #584cf4;
-      outline: none;
-      box-shadow: 0 0 8px rgba(88, 76, 244, 0.2);
-    }
-    .slide-over {
-      transition: transform 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+      background-color: #f9fafb;
     }
     .custom-scrollbar::-webkit-scrollbar {
       width: 4px;
@@ -43,113 +25,66 @@
       background: transparent;
     }
     .custom-scrollbar::-webkit-scrollbar-thumb {
-      background: #1c1a22;
+      background: #e5e7eb;
       border-radius: 99px;
     }
   </style>
 </head>
-<body class="text-[#f1f0f4] min-h-screen flex antialiased">
+<body class="text-slate-800 min-h-screen flex antialiased overflow-hidden">
 
   <div id="root" class="flex-1 flex overflow-hidden"></div>
 
   <script type="text/babel">
-    const { useState, useEffect } = React;
+    const { useState, useEffect, useRef } = React;
 
     function App() {
-      const [currentView, setCurrentView] = useState('clients');
-      const [tenants, setTenants] = useState([]);
-      const [activeTenant, setActiveTenant] = useState(null);
+      const [currentTab, setCurrentTab] = useState('chats');
       const [sessions, setSessions] = useState({});
-      const [isSetupOpen, setIsSetupOpen] = useState(false);
-      const [activeSetupTab, setActiveSetupTab] = useState('brand');
-      
-      const [formData, setFormData] = useState({
-        tenantId: '',
-        companyName: '',
-        logoUrl: 'https://cdn-icons-png.flaticon.com/512/4712/4712035.png',
-        primaryColor: '#584cf4',
-        businessArea: '',
-        welcomeMessage: '¡Hola! Bienvenido al canal inteligente.',
-        toneOfVoice: 'Empático, formal y de negocios.',
-        empathy: 80,
-        formality: 90,
-        persuasion: 50,
-        stageProspectName: 'Ventas y Cotizaciones',
-        stageProspectPrompt: 'Explica los fletes consolidados, cotiza tarifas y captura el correo del cliente.',
-        stageOnboardingName: 'Onboarding y Carga de Identidades',
-        stageOnboardingPrompt: 'Solicita RFC y comprobantes de domicilio para activar el expediente comercial.',
-        stageActiveName: 'Operación y Mesa de Control',
-        stageActivePrompt: 'Atiende incidencias aduanales, guías y abre tickets urgentes de soporte.',
-        allowedDocs: 'RFC, Identificación Oficial',
-        faqs: []
-      });
-
-      const [selectedTags, setSelectedTags] = useState(['Corporativo', 'Asertivo']);
-      const voiceTags = ['Corporativo', 'Cercano', 'Asertivo', 'Asesor Técnico', 'Estructurado', 'Negociador'];
-
-      const [chatMessages, setPlaygroundMessages] = useState([]);
+      const [selectedSessionId, setSelectedSessionId] = useState('session-gabriel-scola');
       const [chatInput, setChatInput] = useState('');
-      const [playgroundSessionId, setPlaygroundSessionId] = useState(`play_${Math.random().toString(36).substring(2, 9)}`);
-      const [playgroundPhase, setPlaygroundPhase] = useState('Prospect');
-      const [playgroundSentiment, setPlaygroundSentiment] = useState('NEUTRAL');
-      const [playgroundTone, setPlaygroundTone] = useState('Informativo');
-      const [apiLogs, setApiLogs] = useState([]);
-      const [collabLogs, setCollabLogs] = useState([]);
+      
+      // AI Orchestration States (Grok-Style simulation inside active chat)
+      const [salesforceStatus, setSalesforceStatus] = useState('action_needed'); // 'action_needed', 'signing_in', 'working', 'done'
+      const [isAiPaused, setIsAiPaused] = useState(false);
+      const [isTransferred, setIsTransferred] = useState(false);
+      const [customLogs, setCustomLogs] = useState([]);
+      const chatEndRef = useRef(null);
+
+      // Seed Static Metrics mimicking Darwin AI
+      const metrics = {
+        leads: { total: 238, label: 'Clientes potenciales', detail: '+120 nuevos', change: 'up' },
+        responseTime: { total: '10 minutos', label: 'Tiempo de respuestas', detail: '+1 min', change: 'up' },
+        conversion: { total: '26%', label: 'Tasa de conversión', detail: '+5% s/m', change: 'up' }
+      };
 
       useEffect(() => {
-        loadTenants();
+        loadSessions();
         initWebSockets();
       }, []);
 
-      const loadTenants = async () => {
+      useEffect(() => {
+        if (chatEndRef.current) {
+          chatEndRef.current.scrollIntoView({ behavior: 'smooth' });
+        }
+      }, [sessions, selectedSessionId, salesforceStatus, customLogs]);
+
+      const loadSessions = async () => {
         try {
           const res = await fetch('/api/tenants');
           const data = await res.json();
-          if (data.success) {
-            setTenants(data.tenants);
-            if (data.tenants.length > 0 && !activeTenant) {
-              const firstTenant = data.tenants[0];
-              setActiveTenant(firstTenant);
-              loadActiveTenantConfig(firstTenant);
-            }
-          }
+          // We load the sessions from the central state machine via our API
+          const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ sessionId: 'session-gabriel-scola', tenantId: 'mi-empresa', message: 'PING_MOCK' })
+          });
+          const chatData = await response.json();
+          // Reload sessions listing
+          const refreshRes = await fetch('/api/config?tenantId=mi-empresa');
+          // In this case, we call the standard endpoints to fetch populated sessions
         } catch (err) {
-          console.error(err);
+          console.error('[Error loading sessions]:', err);
         }
-      };
-
-      const loadActiveTenantConfig = (tenant) => {
-        const rules = tenant.rules || { stages: { Prospect: {}, "New Customer": {}, "Active Customer": {} } };
-        const config = tenant.config || {};
-
-        setFormData({
-          tenantId: tenant.tenantId,
-          companyName: tenant.companyName,
-          logoUrl: tenant.logoUrl,
-          primaryColor: tenant.primaryColor,
-          businessArea: tenant.businessArea || '',
-          welcomeMessage: tenant.welcomeMessage || '',
-          toneOfVoice: tenant.toneOfVoice || 'Empático, formal y altamente corporativo.',
-          empathy: 80,
-          formality: 90,
-          persuasion: 50,
-          stageProspectName: (rules.stages.Prospect || {}).name || 'Ventas',
-          stageProspectPrompt: (rules.stages.Prospect || {}).prompt_instructions || '',
-          stageOnboardingName: (rules.stages["New Customer"] || {}).name || 'Onboarding',
-          stageOnboardingPrompt: (rules.stages["New Customer"] || {}).prompt_instructions || '',
-          stageActiveName: (rules.stages["Active Customer"] || {}).name || 'Soporte',
-          stageActivePrompt: (rules.stages["Active Customer"] || {}).prompt_instructions || '',
-          allowedDocs: (config.allowed_documents || []).join(', '),
-          faqs: tenant.faqs || []
-        });
-
-        setPlaygroundMessages([{ role: 'assistant', content: tenant.welcomeMessage || '¡Hola! ¿En qué te puedo ayudar hoy?', tools: [] }]);
-        setPlaygroundPhase('Prospect');
-        setPlaygroundSentiment('NEUTRAL');
-        setPlaygroundTone('Informativo');
-        setCollabLogs([
-          { from: 'Chief of Staff', to: 'Teammates', message: 'Sistema de Agentes inicializado en modo transversal. Esperando input de usuario.' }
-        ]);
       };
 
       const initWebSockets = () => {
@@ -162,178 +97,73 @@
             const initial = {};
             data.sessions.forEach(s => { initial[s.sessionId] = s; });
             setSessions(initial);
-          } else if (data.event === 'session_created' || data.event === 'session_updated' || data.event === 'state_transition') {
-            setSessions(prev => ({ ...prev, [data.session.sessionId]: data.session }));
-          } else if (data.event === 'new_message') {
-            setSessions(prev => {
-              const current = prev[data.session.sessionId] || { ...data.session };
-              return {
-                ...prev,
-                [data.session.sessionId]: {
-                  ...current,
-                  historyCount: data.session.historyCount,
-                  phase: data.session.phase
-                }
-              };
-            });
-          }
-        };
-      };
-
-      const handleTenantChange = (tenantId) => {
-        const t = tenants.find(item => item.tenantId === tenantId);
-        if (t) {
-          setActiveTenant(t);
-          loadActiveTenantConfig(t);
-          setPlaygroundSessionId(`play_${Math.random().toString(36).substring(2, 9)}`);
-        }
-      };
-
-      const openSetup = (tenant) => {
-        if (!tenant) {
-          setFormData({
-            tenantId: '',
-            companyName: '',
-            logoUrl: 'https://cdn-icons-png.flaticon.com/512/4712/4712035.png',
-            primaryColor: '#584cf4',
-            businessArea: '',
-            welcomeMessage: '¡Hola! Bienvenido al canal inteligente.',
-            toneOfVoice: 'Empático, formal y altamente corporativo.',
-            empathy: 80,
-            formality: 90,
-            persuasion: 50,
-            stageProspectName: 'Ventas y Descubrimiento',
-            stageProspectPrompt: 'Explica los fletes consolidados, cotiza tarifas y captura el correo del cliente.',
-            stageOnboardingName: 'Onboarding y Carga de Identidades',
-            stageOnboardingPrompt: 'Solicita RFC y comprobantes de domicilio para activar el expediente comercial.',
-            stageActiveName: 'Operación y Mesa de Control',
-            stageActivePrompt: 'Atiende incidencias aduanales y abre tickets urgentes de soporte.',
-            allowedDocs: 'RFC, Identificación Oficial',
-            faqs: []
-          });
-        } else {
-          loadActiveTenantConfig(tenant);
-        }
-        setActiveSetupTab('brand');
-        setIsSetupOpen(true);
-      };
-
-      const toggleVoiceTag = (tag) => {
-        if (selectedTags.includes(tag)) {
-          setSelectedTags(selectedTags.filter(t => t !== tag));
-        } else {
-          setSelectedTags([...selectedTags, tag]);
-        }
-      };
-
-      const handleAddFaq = () => {
-        setFormData({
-          ...formData,
-          faqs: [...formData.faqs, { question: '', answer: '' }]
-        });
-      };
-
-      const handleFaqChange = (index, field, value) => {
-        const updated = [...formData.faqs];
-        updated[index][field] = value;
-        setFormData({ ...formData, faqs: updated });
-      };
-
-      const handleRemoveFaq = (index) => {
-        setFormData({
-          ...formData,
-          faqs: formData.faqs.filter((_, i) => i !== index)
-        });
-      };
-
-      const saveSetup = async (e) => {
-        e.preventDefault();
-        const tId = formData.tenantId || formData.companyName.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/(^-|-$)/g, '');
-
-        const synthesizedTone = `Calibración: Empatía ${formData.empathy}%, Formalidad ${formData.formality}%. Estilo: ${selectedTags.join(', ')}.`;
-
-        const payload = {
-          companyName: formData.companyName,
-          businessArea: formData.businessArea,
-          primaryColor: formData.primaryColor,
-          secondaryColor: '#100f14',
-          logoUrl: formData.logoUrl,
-          toneOfVoice: synthesizedTone,
-          welcomeMessage: formData.welcomeMessage,
-          faqs: formData.faqs.filter(f => f.question && f.answer),
-          rules: {
-            stages: {
-              Prospect: {
-                name: formData.stageProspectName,
-                goals: ["Capturar correo del cliente", "Explicar cotizaciones"],
-                prompt_instructions: formData.stageProspectPrompt
-              },
-              "New Customer": {
-                name: formData.stageOnboardingName,
-                goals: ["Solicitar RFC"],
-                prompt_instructions: formData.stageOnboardingPrompt
-              },
-              "Active Customer": {
-                name: formData.stageActiveName,
-                goals: ["Resolver dudas operativas"],
-                prompt_instructions: formData.stageActivePrompt
+          } else if (data.event === 'session_created' || data.event === 'session_updated' || data.event === 'state_transition' || data.event === 'new_message') {
+            // Re-fetch or update session lists dynamically
+            setSessions(prev => ({
+              ...prev,
+              [data.session.sessionId]: {
+                ...prev[data.session.sessionId],
+                ...data.session
               }
-            }
-          },
-          config: {
-            features: { salesforce_sync: true, document_uploads: true, dashboard_telemetry: true },
-            allowed_documents: formData.allowedDocs.split(',').map(d => d.trim())
+            }));
           }
         };
-
-        try {
-          const res = await fetch('/api/meta/consult', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ...payload, crmTool: 'Salesforce' })
-          });
-          const result = await res.json();
-          if (result.success) {
-            setIsSetupOpen(false);
-            loadTenants();
-          }
-        } catch (err) {
-          console.error(err);
-        }
       };
 
+      // Handle user sending manual messages to the active client chat thread
       const handleSendMessage = async (e) => {
         e.preventDefault();
-        if (!chatInput.trim() || !activeTenant) return;
+        if (!chatInput.trim()) return;
 
         const text = chatInput;
         setChatInput('');
-        setPlaygroundMessages(prev => [...prev, { role: 'user', content: text }]);
+
+        // Append to local session state instantly
+        const activeSess = sessions[selectedSessionId];
+        if (!activeSess) return;
+
+        const updatedHistory = [...(activeSess.history || []), { role: 'user', content: text, timestamp: new Date().toISOString() }];
+        setSessions(prev => ({
+          ...prev,
+          [selectedSessionId]: {
+            ...activeSess,
+            history: updatedHistory
+          }
+        }));
+
+        // If AI is paused, we simply add the message to history without firing robot answers
+        if (isAiPaused) {
+          setCustomLogs(prev => [...prev, `[Mesa de Control]: Chat atendido manualmente por operador humano (IA Pausada).`]);
+          return;
+        }
 
         try {
           const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
-              sessionId: playgroundSessionId,
-              tenantId: activeTenant.tenantId,
+              sessionId: selectedSessionId,
+              tenantId: 'mi-empresa',
               message: text
             })
           });
           const result = await response.json();
           if (result.success) {
-            setPlaygroundMessages(prev => [...prev, { role: 'assistant', content: result.reply, tools: result.executedTools }]);
-            setPlaygroundPhase(result.phase);
-            setPlaygroundSentiment(result.sentiment);
-            setPlaygroundTone(result.responseTone);
-            if (result.collaborationLogs) {
-              setCollabLogs(result.collaborationLogs);
-            }
+            // Re-sync session state
+            setSessions(prev => {
+              const target = prev[selectedSessionId];
+              return {
+                ...prev,
+                [selectedSessionId]: {
+                  ...target,
+                  history: [...(target.history || []), { role: 'assistant', content: result.reply, timestamp: new Date().toISOString() }]
+                }
+              };
+            });
 
-            if (result.executedTools && result.executedTools.length > 0) {
-              result.executedTools.forEach(tool => {
-                setApiLogs(prev => [...prev, `[${new Date().toLocaleTimeString()}] API Integration Trigger: ${tool}()`]);
-              });
+            // Trigger Grok Simulation transitions if relevant
+            if (text.toLowerCase().includes('autos') || text.toLowerCase().includes('promociones')) {
+              setSalesforceStatus('action_needed');
             }
           }
         } catch (err) {
@@ -341,406 +171,357 @@
         }
       };
 
+      // Mocking Grok's Salesforce integration workflow
+      const handleSalesforceLogin = (e) => {
+        e.preventDefault();
+        setSalesforceStatus('signing_in');
+        
+        // Simulating sequence: signing_in -> working -> done
+        setTimeout(() => {
+          setSalesforceStatus('working');
+          setTimeout(() => {
+            setSalesforceStatus('done');
+            setCustomLogs(prev => [
+              ...prev,
+              `[Sales Outbound Bot]: Sincronización exitosa. Registrado nuevo Lead en Salesforce CRM (ID: SF-70182).`,
+              `[Chief of Staff]: Tarea de prospección completada de forma paralela en segundo plano.`
+            ]);
+          }, 3000);
+        }, 2000);
+      };
+
+      const togglePauseAi = () => {
+        setIsAiPaused(!isAiPaused);
+        setCustomLogs(prev => [
+          ...prev,
+          `[Mesa de Control]: El estado del Agente ha sido cambiado a: ${!isAiPaused ? 'PAUSADO (Control Humano)' : 'ACTIVO (Orquestación Autónoma)'}.`
+        ]);
+      };
+
+      const triggerTransfer = () => {
+        setIsTransferred(true);
+        setIsAiPaused(true);
+        setCustomLogs(prev => [
+          ...prev,
+          `[Mesa de Control]: Transferido exitosamente a bandeja de operador humano. IA pausada para evitar colisiones.`
+        ]);
+        alert("¡Transferido! El agente autónomo se ha pausado y ahora puedes responder directamente al cliente.");
+      };
+
+      const getActiveSessionMessages = () => {
+        const activeSess = sessions[selectedSessionId];
+        if (!activeSess) return [];
+        
+        // Let's return local list of messages
+        // Since we seed them locally in the stateMachine on start, we display them here
+        return activeSess.history || [];
+      };
+
+      const activeSession = sessions[selectedSessionId] || { name: 'Gabriel Scola', phase: 'Prospect', email: 'gabriel.scola@gmail.com' };
+
       return (
-        <div className="flex-1 flex overflow-hidden">
+        <div className="flex-1 flex overflow-hidden h-screen bg-white">
           
-          <aside className="w-56 bg-[#0c0b0f] border-r border-[#1c1a22] flex flex-col z-20 shrink-0">
-            <div className="p-5 border-b border-[#1c1a22] flex items-center space-x-2.5">
-              <span className="text-[#f1f0f4] font-black text-xs uppercase tracking-widest leading-none">OMNIJOURNEY</span>
+          {/* LEFT SIDEBAR (DARWIN AI BRANDED SIDEBAR) */}
+          <aside className="w-64 bg-white border-r border-slate-200 flex flex-col justify-between shrink-0">
+            <div className="flex flex-col">
+              
+              {/* Brand Header */}
+              <div className="p-6 flex items-center space-x-2 border-b border-slate-100">
+                <span className="text-2xl font-black text-slate-900 tracking-tight flex items-center">
+                  Darwin <span className="text-blue-600 ml-1">Ai</span>
+                </span>
+                <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse mt-3"></span>
+              </div>
+
+              {/* Main Menu Links */}
+              <nav className="p-4 space-y-1">
+                <button onClick={() => setCurrentTab('chats')} className={`w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold transition-all ${currentTab === 'chats' ? 'bg-blue-50/60 text-blue-600' : 'text-slate-500 hover:text-slate-800 hover:bg-slate-50'}`}>
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" /></svg>
+                  <span>Chats</span>
+                </button>
+
+                <button onClick={() => alert("Módulo Contactos premium - Próximamente")} className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-all">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" /></svg>
+                  <span>Contactos</span>
+                </button>
+
+                <button onClick={() => alert("Panel de Campañas automatizadas - Próximamente")} className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-all">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z" /></svg>
+                  <span>Campañas</span>
+                </button>
+
+                <button onClick={() => alert("Sección de Métricas Avanzadas - Próximamente")} className="w-full flex items-center space-x-3 px-4 py-3 rounded-xl text-xs font-bold text-slate-500 hover:text-slate-800 hover:bg-slate-50 transition-all">
+                  <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 002 2h2a2 2 0 002-2z" /></svg>
+                  <span>Métricas</span>
+                </button>
+              </nav>
+
+              {/* TEAMS SECTION (GROK-STYLE AI EMPLOYEES LIST) */}
+              <div className="px-6 py-4">
+                <span className="text-[10px] font-black uppercase text-slate-400 tracking-wider">IA EMPLOYEES</span>
+                <div className="mt-3 space-y-2.5">
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2.5">
+                      <span className="w-2 h-2 rounded-full bg-blue-600"></span>
+                      <span className="text-xs font-semibold text-slate-700">Chief of Staff</span>
+                    </div>
+                    <span className="text-[8px] font-bold bg-blue-50 text-blue-600 px-1.5 py-0.5 rounded uppercase">Active</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2.5">
+                      <span className="w-2 h-2 rounded-full bg-[#818cf8]"></span>
+                      <span className="text-xs font-semibold text-slate-700">Sales Outbound</span>
+                    </div>
+                    <span className="text-[8px] font-bold bg-indigo-50 text-[#818cf8] px-1.5 py-0.5 rounded uppercase">Working</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2.5">
+                      <span className="w-2 h-2 rounded-full bg-slate-300"></span>
+                      <span className="text-xs font-semibold text-slate-500">Talent & Onboarding</span>
+                    </div>
+                    <span className="text-[8px] font-bold bg-slate-100 text-slate-400 px-1.5 py-0.5 rounded uppercase">Idle</span>
+                  </div>
+
+                  <div className="flex items-center justify-between">
+                    <div className="flex items-center space-x-2.5">
+                      <span className="w-2 h-2 rounded-full bg-emerald-500"></span>
+                      <span className="text-xs font-semibold text-slate-700">Ops Manager</span>
+                    </div>
+                    <span className="text-[8px] font-bold bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded uppercase">Online</span>
+                  </div>
+                </div>
+              </div>
+
             </div>
 
-            <nav className="flex-1 py-4 space-y-0.5 px-2">
-              <button onClick={() => setCurrentView('clients')} className={`w-full text-left px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${currentView === 'clients' ? 'bg-[#1c1a22] text-[#f1f0f4]' : 'text-[#a2a0a8] hover:text-[#f1f0f4] hover:bg-[#1c1a22]/40'}`}>
-                <span>Clientes</span>
-              </button>
-
-              <button onClick={() => setCurrentView('telemetry')} className={`w-full text-left px-3.5 py-2.5 rounded-lg text-xs font-semibold transition-all ${currentView === 'telemetry' ? 'bg-[#1c1a22] text-[#f1f0f4]' : 'text-[#a2a0a8] hover:text-[#f1f0f4] hover:bg-[#1c1a22]/40'}`}>
-                <span>Telemetría</span>
-              </button>
-            </nav>
-
-            <div className="p-4 border-t border-[#1c1a22]">
-              <div className="flex items-center space-x-2 bg-[#1c1a22]/20 px-3 py-2 rounded-md">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-                <span className="text-[9px] font-black text-emerald-400 uppercase tracking-widest">LIVE</span>
+            {/* User Profile Card (Lautaro) */}
+            <div className="p-4 border-t border-slate-100 bg-slate-50/50 flex items-center space-x-3">
+              <div className="w-10 h-10 rounded-full bg-blue-600 text-white flex items-center justify-center font-black text-sm">
+                L
+              </div>
+              <div>
+                <h4 className="text-xs font-bold text-slate-800 leading-none">Lautaro</h4>
+                <p className="text-[10px] font-semibold text-slate-500 mt-1">Dueño de Cuenta</p>
               </div>
             </div>
           </aside>
 
-          <main className="flex-1 flex flex-col min-w-0 bg-[#050406] relative">
+          {/* MAIN CRM CONTENT CONTAINER (DARWIN MAIN GRID) */}
+          <main className="flex-1 flex flex-col min-w-0 bg-[#f9fafb]">
             
-            <header className="h-14 border-b border-[#1c1a22] px-6 flex items-center justify-between z-10 bg-[#0c0b0f]">
-              <div className="flex items-center space-x-3">
-                <span className="text-xs text-[#a2a0a8] font-semibold">Cliente:</span>
-                <select value={activeTenant ? activeTenant.tenantId : ''} onChange={(e) => handleTenantChange(e.target.value)} className="bg-[#050406] border border-[#1c1a22] text-xs rounded-lg px-2.5 py-1.5 font-bold text-white focus:outline-none cursor-pointer">
-                  {tenants.map(t => (
-                    <option key={t.tenantId} value={t.tenantId}>{t.companyName}</option>
-                  ))}
-                </select>
+            {/* Header / Metrics row (Darwin Branded Style) */}
+            <header className="p-6 bg-white border-b border-slate-200">
+              <div className="flex justify-between items-start mb-6">
+                <div>
+                  <h1 className="text-2xl font-extrabold text-slate-900">Bienvenido, Lautaro</h1>
+                  <p className="text-xs text-slate-500 font-medium mt-0.5">Darwin ha manejado estos chats. Revisa las interacciones y optimiza la atención al cliente.</p>
+                </div>
+                <div className="flex items-center space-x-2 bg-slate-50 border border-slate-200 px-3.5 py-1.5 rounded-xl text-xs font-bold text-slate-600">
+                  <svg className="w-4 h-4 text-slate-400 mr-1.5" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" /></svg>
+                  <span>17 Sep, 2026</span>
+                </div>
               </div>
 
-              <button onClick={() => openSetup(null)} className="bg-[#584cf4] hover:bg-[#483ee0] text-white text-xs font-bold px-3.5 py-2 rounded-lg transition-all shadow-md">
-                Nuevo Cliente
-              </button>
+              {/* Top Stats Cards */}
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                {Object.keys(metrics).map(key => (
+                  <div key={key} className="bg-[#f9fafb] border border-slate-200 rounded-2xl p-4 flex items-center justify-between">
+                    <div>
+                      <span className="text-[10px] font-bold uppercase text-slate-400 tracking-wider">{metrics[key].label}</span>
+                      <h2 className="text-xl font-extrabold text-slate-800 mt-1">{metrics[key].total}</h2>
+                    </div>
+                    <div className="text-right">
+                      <span className="text-[10px] font-black bg-emerald-50 text-emerald-600 px-2.5 py-1 rounded-full">{metrics[key].detail}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
             </header>
 
-            <div className="flex-1 overflow-hidden flex">
+            {/* Split Screen Panel: Chat Lists (Center) & Chat Conversation (Right) */}
+            <div className="flex-1 flex overflow-hidden">
               
-              {currentView === 'clients' && (
-                <div className="flex-1 flex overflow-hidden">
-                  
-                  <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {tenants.map(t => (
-                        <div key={t.tenantId} className="eleven-panel rounded-xl p-5 flex flex-col justify-between space-y-4 shadow-sm">
-                          <div className="flex items-center justify-between">
-                            <div className="flex items-center space-x-3">
-                              <img src={t.logoUrl} className="w-6 h-6 object-contain" />
-                              <div>
-                                <h3 className="font-bold text-sm text-[#f1f0f4]">{t.companyName}</h3>
-                                <span className="text-[9px] font-bold text-[#a2a0a8] uppercase tracking-wider">{t.tenantId}</span>
-                              </div>
-                            </div>
-                            <div className="w-2 h-2 rounded-full" style={{backgroundColor: t.primaryColor}}></div>
-                          </div>
-
-                          <div className="space-y-1.5 text-xs text-[#a2a0a8] font-medium">
-                            <div className="flex justify-between"><span>Giro:</span><span className="text-[#f1f0f4]">{t.businessArea}</span></div>
-                            <div className="flex justify-between"><span>Estilo:</span><span className="text-[#f1f0f4] truncate max-w-[170px]">{t.toneOfVoice}</span></div>
-                          </div>
-
-                          <div className="grid grid-cols-2 gap-3 pt-2">
-                            <button onClick={() => openSetup(t)} className="bg-[#1c1a22] hover:bg-[#2a2732] text-xs font-bold py-2 rounded-lg text-white transition-all border border-[#1c1a22]">Ajustar Setup</button>
-                            <button onClick={() => { setActiveTenant(t); loadActiveTenantConfig(t); }} className="bg-[#584cf4]/10 hover:bg-[#584cf4]/20 border border-[#584cf4]/20 text-xs font-bold py-2 rounded-lg text-[#818cf8] transition-all">Probar</button>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
+              {/* CHATS LIST (COLUMNA CENTRAL) */}
+              <div className="w-96 border-r border-slate-200 bg-white flex flex-col shrink-0">
+                <div className="p-4 border-b border-slate-100">
+                  <div className="relative">
+                    <input type="text" placeholder="Buscar por nombre, correo..." className="w-full bg-slate-50 border border-slate-200 rounded-xl py-2.5 pl-9 pr-4 text-xs font-medium focus:outline-none focus:border-blue-500 focus:bg-white transition-all" />
+                    <svg className="w-4 h-4 text-slate-400 absolute left-3 top-3" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" /></svg>
                   </div>
+                </div>
 
-                  <div className="w-96 border-l border-[#1c1a22] flex flex-col bg-[#0c0b0f] p-5 space-y-4">
-                    
-                    <div className="flex-1 bg-[#050406] border border-[#1c1a22] rounded-xl p-4 flex flex-col space-y-4 overflow-hidden">
+                <div className="flex-1 overflow-y-auto divide-y divide-slate-100 custom-scrollbar">
+                  {Object.values(sessions).map(s => (
+                    <button key={s.sessionId} onClick={() => setSelectedSessionId(s.sessionId)} className={`w-full text-left p-4 flex items-start space-x-3 transition-all focus:outline-none ${selectedSessionId === s.sessionId ? 'bg-blue-50/40' : 'hover:bg-slate-50/50'}`}>
+                      <div className="w-10 h-10 rounded-full bg-slate-100 border border-slate-200 text-slate-600 font-extrabold text-xs flex items-center justify-center shrink-0 uppercase">
+                        {s.name ? s.name.substring(0, 2) : 'AN'}
+                      </div>
                       
-                      <div className="flex items-center justify-between border-b border-[#1c1a22] pb-2.5">
-                        <span className="text-xs font-bold text-[#f1f0f4]">{activeTenant ? activeTenant.companyName : ''}</span>
-                        <span className="text-[9px] font-black uppercase bg-[#1c1a22] text-[#a2a0a8] px-2 py-0.5 rounded">
-                          {playgroundPhase === 'New Customer' ? 'Onboarding' : (playgroundPhase === 'Active Customer' ? 'Soporte' : 'Ventas')}
-                        </span>
-                      </div>
-
-                      <div className="flex-1 overflow-y-auto space-y-3 max-h-[220px] custom-scrollbar">
-                        {chatMessages.map((msg, i) => (
-                          <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`p-3 rounded-lg text-xs max-w-[90%] leading-relaxed ${msg.role === 'user' ? 'bg-[#584cf4] text-white' : 'bg-[#1c1a22] text-[#f1f0f4]'}`}>
-                              {msg.content}
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-
-                      {/* TEAMMATES BACK-CHANNEL (GROK-STYLE MULTI-AGENT TELEMETRY PANEL) */}
-                      <div className="bg-[#050406] border border-[#1c1a22] rounded-lg p-3 space-y-2 flex-shrink-0">
-                        <div className="flex justify-between items-center pb-1 border-b border-[#1c1a22]">
-                          <span className="text-[8px] text-[#a2a0a8] font-black uppercase tracking-wider">Teammates Back-Channel (AI Collab)</span>
-                          <span className="text-[7px] text-emerald-400 font-mono">Parallel Sync</span>
+                      <div className="flex-1 min-w-0">
+                        <div className="flex justify-between items-baseline">
+                          <h4 className={`text-xs font-bold truncate ${selectedSessionId === s.sessionId ? 'text-blue-700' : 'text-slate-800'}`}>{s.name || 'Sesión Activa'}</h4>
+                          <span className="text-[9px] text-slate-400 font-medium">Hace 2m</span>
                         </div>
-                        <div className="space-y-2 max-h-[110px] overflow-y-auto custom-scrollbar text-[10px] font-mono leading-relaxed">
-                          {collabLogs.map((log, i) => (
-                            <div key={i} className="space-y-0.5 border-b border-[#1c1a22]/40 pb-1.5 last:border-0 last:pb-0">
-                              <div className="flex items-center space-x-1.5">
-                                <span className="text-[#818cf8] font-bold">{log.from}</span>
-                                <span className="text-slate-600">➔</span>
-                                <span className="text-slate-400 font-bold">{log.to}</span>
-                              </div>
-                              <p className="text-slate-400 text-[9px] pl-2">{log.message}</p>
-                            </div>
-                          ))}
+                        <p className="text-[10px] text-slate-500 truncate font-semibold mt-0.5">{s.email || 'sin-correo@crm.com'}</p>
+                        
+                        <div className="flex items-center space-x-2 mt-2">
+                          <span className={`text-[8px] font-black uppercase tracking-wider px-2 py-0.5 rounded-full ${s.phase === 'New Customer' ? 'bg-indigo-50 text-[#818cf8]' : (s.phase === 'Active Customer' ? 'bg-emerald-50 text-emerald-600' : 'bg-amber-50 text-amber-600')}`}>
+                            {s.phase === 'New Customer' ? 'Onboarding' : (s.phase === 'Active Customer' ? 'Mesa de Control' : 'Ventas')}
+                          </span>
                         </div>
                       </div>
-
-                      <form onSubmit={handleSendMessage} className="flex items-center space-x-2 bg-[#0c0b0f] p-1 rounded-lg border border-[#1c1a22] flex-shrink-0">
-                        <input type="text" value={chatInput} onChange={(e) => setChatInput(e.target.value)} placeholder="Escribe..." className="flex-1 bg-transparent text-xs text-white p-2 focus:outline-none" />
-                        <button type="submit" className="bg-[#584cf4] hover:bg-[#483ee0] text-white rounded px-3 py-1.5 text-xs font-bold shrink-0">
-                          Enviar
-                        </button>
-                      </form>
-
-                    </div>
-                  </div>
-
-                </div>
-              )}
-
-              {currentView === 'telemetry' && (
-                <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-                  <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                    <div className="lg:col-span-2 eleven-panel rounded-xl p-5 shadow-sm space-y-4">
-                      <h3 className="text-xs font-bold uppercase text-[#a2a0a8] tracking-widest border-b border-[#1c1a22] pb-2">Sesiones Activas</h3>
-                      <div className="space-y-2">
-                        {Object.values(sessions).length === 0 ? (
-                          <p className="text-xs text-[#a2a0a8] py-6 text-center">Esperando tráfico...</p>
-                        ) : (
-                          Object.values(sessions).map(s => (
-                            <div key={s.sessionId} className="bg-[#050406] p-3 rounded-lg border border-[#1c1a22] flex items-center justify-between">
-                              <div>
-                                <span className="text-xs font-bold text-white">{s.name || 'Sesión Anónima'}</span>
-                                <p className="text-[10px] text-slate-500 font-mono mt-0.5">{s.sessionId}</p>
-                              </div>
-                              <span className="text-[10px] uppercase font-bold text-[#a2a0a8]">{s.phase}</span>
-                            </div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-
-                    <div className="bg-[#0c0b0f] border border-[#1c1a22] rounded-xl p-4 flex flex-col space-y-3 font-mono">
-                      <span className="text-[9px] text-[#a2a0a8] font-bold uppercase">LOGS</span>
-                      <div className="flex-1 bg-[#050406] p-3 rounded-lg border border-[#1c1a22] text-[10px] text-emerald-400 space-y-1.5 overflow-y-auto max-h-[300px] custom-scrollbar">
-                        {apiLogs.length === 0 ? (
-                          <span className="text-slate-600 italic">// Esperando triggers...</span>
-                        ) : (
-                          apiLogs.map((log, i) => (
-                            <div key={i}>{log}</div>
-                          ))
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-            </div>
-
-            {/* SETUP HUB DRAWER - HIGH-FIDELITY STUDIO (ELEVENLABS WORKSPACE) */}
-            <div className={`fixed inset-y-0 right-0 w-[950px] bg-[#0c0b0f] border-l border-[#1c1a22] z-50 shadow-2xl flex flex-row transform slide-over ${isSetupOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-              
-              {/* Left Column: Form Settings */}
-              <div className="flex-1 flex flex-col border-r border-[#1c1a22]">
-                <div className="p-5 border-b border-[#1c1a22] flex justify-between items-center">
-                  <div>
-                    <h3 className="font-bold text-sm text-white">Engine Configuration</h3>
-                    <p className="text-[10px] text-[#a2a0a8] mt-0.5">Sintetiza la identidad, tono de voz y metas operativas.</p>
-                  </div>
-                  <button onClick={() => setIsSetupOpen(false)} className="text-[#a2a0a8] hover:text-white transition-all text-xs">
-                    ✕
-                  </button>
-                </div>
-
-                <div className="flex border-b border-[#1c1a22] bg-[#050406]">
-                  {['brand', 'voice', 'journey', 'catalog'].map(tab => (
-                    <button key={tab} onClick={() => setActiveSetupTab(tab)} className={`flex-1 text-center py-3 text-[10px] font-black uppercase tracking-wider focus:outline-none transition-all ${activeSetupTab === tab ? 'border-b border-[#584cf4] text-[#f1f0f4] bg-[#0c0b0f]/50' : 'text-[#a2a0a8] hover:text-[#f1f0f4]'}`}>
-                      {tab === 'brand' ? 'Marca' : tab === 'voice' ? 'Ingredientes' : tab === 'journey' ? 'Journey Fases' : 'Base Catálogo'}
                     </button>
                   ))}
                 </div>
-
-                <div className="flex-1 overflow-y-auto p-6 space-y-6 custom-scrollbar">
-                  
-                  {activeSetupTab === 'brand' && (
-                    <div className="space-y-5">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="flex flex-col space-y-1.5">
-                          <label className="text-[9px] text-[#a2a0a8] font-black uppercase tracking-wider">Nombre de Empresa</label>
-                          <input type="text" value={formData.companyName} onChange={e => setFormData({...formData, companyName: e.target.value})} className="eleven-input text-xs text-white rounded-lg p-3 focus:outline-none" />
-                        </div>
-                        <div className="flex flex-col space-y-1.5">
-                          <label className="text-[9px] text-[#a2a0a8] font-black uppercase tracking-wider">Giro Comercial</label>
-                          <input type="text" value={formData.businessArea} onChange={e => setFormData({...formData, businessArea: e.target.value})} className="eleven-input text-xs text-white rounded-lg p-3 focus:outline-none" />
-                        </div>
-                      </div>
-
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="flex flex-col space-y-1.5">
-                          <label className="text-[9px] text-[#a2a0a8] font-black uppercase tracking-wider">Color Hexadecimal</label>
-                          <div className="flex items-center space-x-2.5">
-                            <input type="color" value={formData.primaryColor} onChange={e => setFormData({...formData, primaryColor: e.target.value})} className="h-10 w-16 bg-transparent border-0 cursor-pointer rounded-lg" />
-                            <input type="text" value={formData.primaryColor} onChange={e => setFormData({...formData, primaryColor: e.target.value})} className="eleven-input text-xs text-white rounded-lg p-2.5 w-full focus:outline-none font-mono" />
-                          </div>
-                        </div>
-                        <div className="flex flex-col space-y-1.5">
-                          <label className="text-[9px] text-[#a2a0a8] font-black uppercase tracking-wider">Logo URL Asset</label>
-                          <input type="text" value={formData.logoUrl} onChange={e => setFormData({...formData, logoUrl: e.target.value})} className="eleven-input text-xs text-white rounded-lg p-3 focus:outline-none font-mono" />
-                        </div>
-                      </div>
-
-                      <div className="flex flex-col space-y-1.5">
-                        <label className="text-[9px] text-[#a2a0a8] font-black uppercase tracking-wider">Saludo de Bienvenida</label>
-                        <input type="text" value={formData.welcomeMessage} onChange={e => setFormData({...formData, welcomeMessage: e.target.value})} className="eleven-input text-xs text-white rounded-lg p-3 focus:outline-none" />
-                      </div>
-                    </div>
-                  )}
-
-                  {activeSetupTab === 'voice' && (
-                    <div className="space-y-6">
-                      <div className="space-y-4 bg-[#050406] p-5 rounded-xl border border-[#1c1a22]">
-                        <span className="text-[9px] text-[#a2a0a8] font-black uppercase tracking-wider block">Sliders de Estabilidad Vocálica</span>
-                        
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-xs font-bold text-[#a2a0a8]">
-                            <span>Empatía y Cercanía</span>
-                            <span className="text-[#584cf4]">{formData.empathy}%</span>
-                          </div>
-                          <input type="range" value={formData.empathy} onChange={e => setFormData({...formData, empathy: Number(e.target.value)})} min="0" max="100" className="w-full h-1 bg-[#1c1a22] rounded-lg cursor-pointer accent-[#584cf4]" />
-                        </div>
-
-                        <div className="space-y-2">
-                          <div className="flex justify-between text-xs font-bold text-[#a2a0a8]">
-                            <span>Formalidad y Estructura</span>
-                            <span className="text-[#584cf4]">{formData.formality}%</span>
-                          </div>
-                          <input type="range" value={formData.formality} onChange={e => setFormData({...formData, formality: Number(e.target.value)})} min="0" max="100" className="w-full h-1 bg-[#1c1a22] rounded-lg cursor-pointer accent-[#584cf4]" />
-                        </div>
-                      </div>
-
-                      <div className="space-y-2.5">
-                        <span className="text-[9px] text-[#a2a0a8] font-black uppercase tracking-wider block">Moduladores de Estilo</span>
-                        <div className="flex flex-wrap gap-2">
-                          {voiceTags.map(tag => (
-                            <button key={tag} onClick={() => toggleVoiceTag(tag)} className={`text-[10px] font-bold px-3 py-1.5 rounded-lg border transition-all ${selectedTags.includes(tag) ? 'bg-[#584cf4]/10 border-[#584cf4] text-[#818cf8]' : 'bg-[#050406] border-[#1c1a22] text-[#a2a0a8] hover:text-[#f1f0f4]'}`}>
-                              {tag}
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-
-                      <div className="bg-[#050406] p-4 rounded-xl border border-[#1c1a22] space-y-2">
-                        <span className="text-[8px] font-mono text-slate-500 uppercase tracking-widest">Sintetizador de Prompt de Voz Real-Time</span>
-                        <code className="text-[11px] text-[#818cf8] font-mono block leading-relaxed">
-                          "Suena como un agente de {formData.businessArea || 'Servicios'} con un tono {formData.empathy > 70 ? 'altamente empático' : 'objetivo y directo'} ({formData.empathy}%), formalidad estricta al {formData.formality}%. Estilo calibrado: {selectedTags.join(', ')}."
-                        </code>
-                      </div>
-                    </div>
-                  )}
-
-                  {activeSetupTab === 'journey' && (
-                    <div className="space-y-5">
-                      
-                      <div className="bg-[#050406] p-4 rounded-xl border border-[#1c1a22] space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-[9px] font-black uppercase text-yellow-500 tracking-wider">Fase 1: Ventas y Captura</span>
-                          <span className="text-[9px] font-mono text-[#a2a0a8]">State: Prospect</span>
-                        </div>
-                        <input type="text" value={formData.stageProspectName} onChange={e => setFormData({...formData, stageProspectName: e.target.value})} className="eleven-input text-xs text-white rounded-lg p-2.5 w-full focus:outline-none" />
-                        <textarea value={formData.stageProspectPrompt} onChange={e => setFormData({...formData, stageProspectPrompt: e.target.value})} rows="2" className="eleven-input text-xs text-white rounded-lg p-2.5 w-full font-mono focus:outline-none" />
-                        <div className="flex justify-between text-[9px] text-[#a2a0a8] font-mono pt-1">
-                          <span>🎯 Meta: Captura de Correo</span>
-                          <span>Trigger: createLead()</span>
-                        </div>
-                      </div>
-
-                      <div className="bg-[#050406] p-4 rounded-xl border border-[#1c1a22] space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-[9px] font-black uppercase text-blue-400 tracking-wider">Fase 2: Onboarding de Identidades</span>
-                          <span className="text-[9px] font-mono text-[#a2a0a8]">State: New Customer</span>
-                        </div>
-                        <input type="text" value={formData.stageOnboardingName} onChange={e => setFormData({...formData, stageOnboardingName: e.target.value})} className="eleven-input text-xs text-white rounded-lg p-2.5 w-full focus:outline-none" />
-                        <textarea value={formData.stageOnboardingPrompt} onChange={e => setFormData({...formData, stageOnboardingPrompt: e.target.value})} rows="2" className="eleven-input text-xs text-white rounded-lg p-2.5 w-full font-mono focus:outline-none" />
-                        <div className="flex justify-between text-[9px] text-[#a2a0a8] font-mono pt-1">
-                          <span>🎯 Meta: Carga de RFC</span>
-                          <span>Trigger: submitOnboardingDocument()</span>
-                        </div>
-                      </div>
-
-                      <div className="bg-[#050406] p-4 rounded-xl border border-[#1c1a22] space-y-3">
-                        <div className="flex justify-between items-center">
-                          <span className="text-[9px] font-black uppercase text-emerald-400 tracking-wider">Fase 3: Operación & Soporte</span>
-                          <span className="text-[9px] font-mono text-[#a2a0a8]">State: Active Customer</span>
-                        </div>
-                        <input type="text" value={formData.stageActiveName} onChange={e => setFormData({...formData, stageActiveName: e.target.value})} className="eleven-input text-xs text-white rounded-lg p-2.5 w-full focus:outline-none" />
-                        <textarea value={formData.stageActivePrompt} onChange={e => setFormData({...formData, stageActivePrompt: e.target.value})} rows="2" className="eleven-input text-xs text-white rounded-lg p-2.5 w-full font-mono focus:outline-none" />
-                        <div className="flex justify-between text-[9px] text-[#a2a0a8] font-mono pt-1">
-                          <span>🎯 Meta: Resolver Incidencias</span>
-                          <span>Trigger: createSupportCase()</span>
-                        </div>
-                      </div>
-
-                    </div>
-                  )}
-
-                  {activeSetupTab === 'catalog' && (
-                    <div className="space-y-5">
-                      <div className="flex flex-col space-y-1.5">
-                        <label className="text-[10px] text-[#a2a0a8] font-bold uppercase">Documentos Obligatorios (Onboarding)</label>
-                        <input type="text" value={formData.allowedDocs} onChange={e => setFormData({...formData, allowedDocs: e.target.value})} className="eleven-input text-xs text-white rounded-lg p-3 focus:outline-none" />
-                      </div>
-
-                      <div className="space-y-3">
-                        <div className="flex justify-between items-center">
-                          <label className="text-[10px] text-[#a2a0a8] font-bold uppercase">Base de Conocimiento (FAQs)</label>
-                          <button onClick={handleAddFaq} className="text-[#584cf4] text-xs font-bold hover:text-white transition-all">+ Agregar Tarjeta</button>
-                        </div>
-
-                        <div className="grid grid-cols-1 gap-3">
-                          {formData.faqs.map((faq, index) => (
-                            <div key={index} className="bg-[#050406] p-4 rounded-xl border border-[#1c1a22] space-y-2.5 relative">
-                              <button onClick={() => handleRemoveFaq(index)} className="absolute top-3 right-3 text-[#a2a0a8] hover:text-red-400 text-[10px]">✕ Eliminar</button>
-                              <div className="flex flex-col space-y-1">
-                                <span className="text-[8px] text-[#a2a0a8] font-black uppercase">Pregunta o Concepto</span>
-                                <input type="text" value={faq.question} onChange={e => handleFaqChange(index, 'question', e.target.value)} placeholder="Ej: ¿Cuáles son las tarifas?" className="eleven-input text-xs text-white rounded-lg p-2 w-full focus:outline-none" />
-                              </div>
-                              <div className="flex flex-col space-y-1">
-                                <span className="text-[8px] text-[#a2a0a8] font-black uppercase">Respuesta del Agente</span>
-                                <textarea value={faq.answer} onChange={e => handleFaqChange(index, 'answer', e.target.value)} placeholder="Ej: Comienzan en $150 USD." rows="2" className="eleven-input text-xs text-white rounded-lg p-2 w-full focus:outline-none" />
-                              </div>
-                            </div>
-                          ))}
-                        </div>
-                      </div>
-                    </div>
-                  )}
-
-                </div>
-
-                <div className="p-5 border-t border-[#1c1a22] flex space-x-3 bg-[#050406]">
-                  <button onClick={() => setIsSetupOpen(false)} className="flex-1 bg-[#1c1a22] hover:bg-[#2a2732] text-xs font-bold text-slate-300 py-3 rounded-xl transition-all">Cancelar</button>
-                  <button onClick={saveSetup} className="flex-1 bg-[#584cf4] hover:bg-[#483ee0] text-xs font-bold text-white py-3 rounded-xl transition-all">Guardar Configuración</button>
-                </div>
               </div>
 
-              {/* Right Column: Live Mockup Preview (Stripe/ElevenLabs Style) */}
-              <div className="w-[380px] bg-[#050406] p-6 flex flex-col justify-center items-center space-y-4">
-                <span className="text-[9px] text-[#a2a0a8] font-black uppercase tracking-widest block">Live Channel Preview</span>
+              {/* CONVERSACIÓN ACTIVA Y GROK LOGS (COLUMNA DERECHA) */}
+              <div className="flex-1 flex flex-col bg-white overflow-hidden">
                 
-                <div className="w-[300px] h-[520px] bg-[#0c0b0f] rounded-3xl border border-[#1c1a22] flex flex-col overflow-hidden shadow-2xl relative">
-                  
-                  {/* Mockup Header */}
-                  <div className="p-4 border-b border-[#1c1a22] flex items-center space-x-3 bg-[#050406]">
-                    <div className="w-8 h-8 rounded-lg bg-[#1c1a22] flex items-center justify-center border border-white/5">
-                      <img src={formData.logoUrl} className="w-5 h-5 object-contain" />
+                {/* Active Chat Header */}
+                <div className="p-4 border-b border-slate-200 flex justify-between items-center bg-white">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-9 h-9 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-bold text-xs uppercase">
+                      {activeSession.name.substring(0, 2)}
                     </div>
                     <div>
-                      <h4 className="text-xs font-black text-white leading-none">{formData.companyName || 'Empresa Piloto'}</h4>
-                      <p className="text-[8px] text-[#a2a0a8] mt-1 font-bold">OmniJourney Live Chat</p>
+                      <h3 className="text-xs font-extrabold text-slate-800 leading-none">{activeSession.name}</h3>
+                      <span className="text-[10px] text-slate-400 font-bold mt-1.5 block">{activeSession.email}</span>
                     </div>
                   </div>
 
-                  {/* Mockup Feed */}
-                  <div className="flex-1 p-4 space-y-3.5">
-                    <div className="flex justify-start">
-                      <div className="bg-[#1c1a22] text-[#f1f0f4] text-[10px] p-3 rounded-xl rounded-tl-none leading-relaxed max-w-[85%] border border-white/5 shadow-sm">
-                        {formData.welcomeMessage || '¡Hola! ¿Cómo te podemos ayudar hoy?'}
+                  <div className="flex items-center space-x-2">
+                    <span className="text-[10px] font-black uppercase tracking-widest text-[#a2a0a8]">ESTADO IA:</span>
+                    <span className={`text-[10px] font-bold px-2.5 py-1 rounded-xl uppercase flex items-center space-x-1.5 ${isAiPaused ? 'bg-amber-50 text-amber-600' : 'bg-emerald-50 text-emerald-600'}`}>
+                      <span className={`w-1.5 h-1.5 rounded-full ${isAiPaused ? 'bg-amber-500' : 'bg-emerald-500 animate-pulse'}`}></span>
+                      <span>{isAiPaused ? 'PAUSADO (Manual)' : 'ACTIVO (Orquestación)'}</span>
+                    </span>
+                  </div>
+                </div>
+
+                {/* Chat Message Thread */}
+                <div className="flex-1 overflow-y-auto p-6 bg-slate-50/50 space-y-4 custom-scrollbar">
+                  {getActiveSessionMessages().map((msg, i) => (
+                    <div key={i} className={`flex ${msg.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      <div className={`p-3.5 rounded-2xl text-xs max-w-[80%] leading-relaxed shadow-sm border ${msg.role === 'user' ? 'bg-blue-600 text-white border-blue-500 rounded-tr-none' : 'bg-white text-slate-800 border-slate-100 rounded-tl-none'}`}>
+                        {msg.content}
                       </div>
                     </div>
+                  ))}
 
-                    <div className="flex justify-end">
-                      <div className="text-white text-[10px] p-3 rounded-xl rounded-tr-none leading-relaxed max-w-[80%]" style={{backgroundColor: formData.primaryColor}}>
-                        Quiero cotizar un envío de mercancía desde Asia.
+                  {/* GROK-STYLE TEAMMATES BACK-CHANNEL (AI COLLAB BOX) */}
+                  <div className="bg-white border border-slate-200 rounded-2xl p-5 space-y-4 max-w-[90%] mx-auto shadow-md">
+                    
+                    {/* Header */}
+                    <div className="flex justify-between items-center pb-2 border-b border-slate-100">
+                      <div className="flex items-center space-x-2">
+                        <span className="w-2.5 h-2.5 rounded-full bg-indigo-500 animate-pulse"></span>
+                        <span className="text-[10px] font-black text-slate-800 uppercase tracking-widest">Teammates Back-Channel</span>
+                      </div>
+                      <span className="text-[9px] font-bold text-indigo-500 uppercase tracking-wider bg-indigo-50 px-2 py-0.5 rounded-full">Parallel Sync</span>
+                    </div>
+
+                    {/* Simulation Flow of Salesforce connection */}
+                    <div className="space-y-3">
+                      <div className="flex items-start space-x-3 text-xs">
+                        <span className="text-slate-400 shrink-0 font-bold font-mono">💻 Computer</span>
+                        
+                        <div className="flex-1 bg-slate-50 border border-slate-200 rounded-xl p-4">
+                          {salesforceStatus === 'action_needed' && (
+                            <div className="space-y-3">
+                              <div className="flex justify-between items-center">
+                                <span className="font-extrabold text-xs text-slate-800">Sign in to Salesforce</span>
+                                <span className="text-[9px] font-black uppercase text-amber-600 bg-amber-50 px-2 py-0.5 rounded-full">Action Needed</span>
+                              </div>
+                              <p className="text-slate-500 text-[11px] leading-relaxed">Conéctate a tu Salesforce para que el Sales Outbound Bot pueda validar, cotizar y sincronizar el lead comercial de este cliente.</p>
+                              
+                              <form onSubmit={handleSalesforceLogin} className="space-y-2 pt-1">
+                                <input type="email" required placeholder="tu-correo@empresa.com" defaultValue="lautaro@eirs.ai" className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold focus:outline-none" />
+                                <input type="password" required placeholder="••••••••" defaultValue="contrasenia123" className="w-full bg-white border border-slate-200 rounded-lg p-2 text-xs font-semibold focus:outline-none" />
+                                <button type="submit" className="w-full bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold py-2 rounded-lg transition-all shadow">Conectar Salesforce</button>
+                              </form>
+                            </div>
+                          )}
+
+                          {salesforceStatus === 'signing_in' && (
+                            <div className="flex items-center space-x-3 py-3">
+                              <span className="w-4 h-4 rounded-full border-2 border-slate-300 border-t-blue-600 animate-spin"></span>
+                              <span className="text-xs font-bold text-slate-600">Verificando credenciales de Salesforce...</span>
+                            </div>
+                          )}
+
+                          {salesforceStatus === 'working' && (
+                            <div className="space-y-2 py-1">
+                              <div className="flex items-center space-x-2">
+                                <span className="w-3.5 h-3.5 rounded-full border-2 border-slate-300 border-t-indigo-600 animate-spin"></span>
+                                <span className="text-xs font-extrabold text-indigo-600">Working...</span>
+                              </div>
+                              <p className="text-slate-500 text-[10px] font-semibold">El bot especialista está analizando el catálogo de fletes y generando el perfil comercial en tu CRM.</p>
+                            </div>
+                          )}
+
+                          {salesforceStatus === 'done' && (
+                            <div className="space-y-2.5 text-xs">
+                              <div className="flex justify-between items-center pb-1 border-b border-slate-100">
+                                <span className="font-extrabold text-slate-800">Conexión de Salesforce</span>
+                                <span className="text-[9px] font-black uppercase text-emerald-600 bg-emerald-50 px-2.5 py-0.5 rounded-full">● Done</span>
+                              </div>
+                              <div className="space-y-1 font-mono text-[10px] text-slate-600 leading-relaxed">
+                                <p className="text-emerald-600 font-bold">✓ Salesforce - lead synced: SF-70182-Gabriel</p>
+                                <p>✓ Hex - 3 lookalike logistics segments analyzed</p>
+                                <p>✓ LinkedIn - 4 matching corporate profiles skipped</p>
+                                <p>✓ Sequencer - 36 automated marketing drafts queued</p>
+                              </div>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Custom Telemetry Log Feed inside the Back-Channel */}
+                      <div className="space-y-1.5 pl-3 border-l-2 border-slate-100 pt-1 text-[11px] font-semibold leading-relaxed font-mono text-slate-500">
+                        {customLogs.length === 0 ? (
+                          <div className="text-slate-400 italic">Esperando que el bot asigne tareas en paralelo...</div>
+                        ) : (
+                          customLogs.map((log, i) => (
+                            <div key={i} className="pb-1 border-b border-slate-100/50 last:border-0 last:pb-0">{log}</div>
+                          ))
+                        )}
                       </div>
                     </div>
                   </div>
 
-                  {/* Mockup Input Box */}
-                  <div className="p-3 bg-[#050406] border-t border-[#1c1a22] flex items-center space-x-2">
-                    <div className="flex-1 bg-[#0c0b0f] border border-[#1c1a22] text-[10px] p-2 text-[#a2a0a8] rounded-lg">
-                      Escribe un mensaje...
-                    </div>
-                    <button className="text-white rounded-lg p-2 text-xs" style={{backgroundColor: formData.primaryColor}}>
-                      ➔
+                  <div ref={chatEndRef} />
+                </div>
+
+                {/* Bottom Bar: Action buttons and Message Input Form */}
+                <div className="p-4 border-t border-slate-200 bg-white">
+                  
+                  {/* Dynamic Action Buttons (Darwin-Style rounded outline controls) */}
+                  <div className="flex space-x-3 mb-4">
+                    <button onClick={triggerTransfer} className={`flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-full border text-xs font-bold transition-all ${isTransferred ? 'bg-slate-50 border-slate-200 text-slate-400' : 'bg-white hover:bg-slate-50 border-blue-600 text-blue-600'}`}>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M8 7h12m0 0l-4-4m4 4l-4 4m0 6H4m0 0l4 4m-4-4l4-4" /></svg>
+                      <span>{isTransferred ? 'Transferido' : 'Transferir a Humano'}</span>
+                    </button>
+
+                    <button onClick={togglePauseAi} className={`flex-1 flex items-center justify-center space-x-2 py-2.5 rounded-full border text-xs font-bold transition-all ${isAiPaused ? 'bg-emerald-600 text-white border-emerald-500 hover:bg-emerald-700' : 'bg-white hover:bg-slate-50 border-amber-500 text-amber-500'}`}>
+                      <svg className="w-4 h-4" fill="none" stroke="currentColor" strokeWidth="2.5" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" d="M10 9v6m4-6v6m7-3a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
+                      <span>{isAiPaused ? 'Reanudar IA' : 'Pausar IA'}</span>
                     </button>
                   </div>
 
+                  {/* Manual Message Input Box */}
+                  <form onSubmit={handleSendMessage} className="flex items-center space-x-3 bg-slate-50 border border-slate-200 p-2 rounded-2xl focus-within:border-blue-500 focus-within:bg-white transition-all">
+                    <input type="text" value={chatInput} onChange={e => setChatInput(e.target.value)} placeholder={isAiPaused ? "IA Pausada. Escribe para contestarle al cliente..." : "Pregúntale a la IA o escribe directamente..."} className="flex-1 bg-transparent text-xs text-slate-800 p-2 focus:outline-none" />
+                    <button type="submit" className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl p-2 px-4 text-xs font-bold shrink-0 shadow transition-all">
+                      Enviar
+                    </button>
+                  </form>
+
                 </div>
+
               </div>
 
             </div>

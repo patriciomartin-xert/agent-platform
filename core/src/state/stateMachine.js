@@ -1,6 +1,70 @@
 class StateMachine {
   constructor() {
-    this.sessions = {};
+    this.sessions = {
+      "session-gabriel-scola": {
+        sessionId: "session-gabriel-scola",
+        tenantId: "mi-empresa",
+        phase: "Prospect",
+        name: "Gabriel Scola",
+        email: "gabriel.scola@gmail.com",
+        history: [
+          {
+            role: "user",
+            content: "¿Tienen promociones para autos nuevos? Estoy buscando opciones de pago.",
+            timestamp: new Date(Date.now() - 3600000).toISOString()
+          },
+          {
+            role: "assistant",
+            content: "¡Hola, Gabriel! Sí, tenemos promociones espectaculares para autos nuevos este mes con tasas de interés preferenciales desde el 9.9% y opciones de enganche diferido. ¿Qué tipo de modelo o segmento estás buscando para tu negocio o uso personal?",
+            timestamp: new Date(Date.now() - 3500000).toISOString()
+          }
+        ],
+        createdAt: new Date(Date.now() - 7200000).toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      "session-ezequiel-verrati": {
+        sessionId: "session-ezequiel-verrati",
+        tenantId: "mi-empresa",
+        phase: "New Customer",
+        name: "Ezequiel Verrati",
+        email: "ezequiel.v@outlook.com",
+        history: [
+          {
+            role: "user",
+            content: "Me interesa avanzar con el financiamiento del auto familiar, ¿cuáles son los siguientes pasos?",
+            timestamp: new Date(Date.now() - 7200000).toISOString()
+          },
+          {
+            role: "assistant",
+            content: "Hola Ezequiel. ¡Excelente elección! Para poder dar de alta tu expediente comercial y procesar la aprobación crediticia de tu unidad, el equipo de Onboarding requiere que cargues tu identificación oficial, tu RFC y un comprobante de domicilio no mayor a 3 meses. ¿Tienes estos documentos a la mano?",
+            timestamp: new Date(Date.now() - 7100000).toISOString()
+          }
+        ],
+        createdAt: new Date(Date.now() - 14400000).toISOString(),
+        updatedAt: new Date().toISOString()
+      },
+      "session-franco-martinez": {
+        sessionId: "session-franco-martinez",
+        tenantId: "mi-empresa",
+        phase: "Active Customer",
+        name: "Franco Martínez",
+        email: "franco.mtz@yahoo.com",
+        history: [
+          {
+            role: "user",
+            content: "Hola, ¿me podrían confirmar si mi unidad ya pasó el control de calidad de la mesa de control aduanal? La fecha de entrega era hoy.",
+            timestamp: new Date(Date.now() - 10800000).toISOString()
+          },
+          {
+            role: "assistant",
+            content: "Hola Franco. Sí, tu unidad familiar ya fue autorizada y liberada por la mesa de control aduanal esta mañana. Tu expediente está 100% aprobado. En este momento el transportista está programando la ruta de entrega. ¿Te gustaría que te enviemos el link de rastreo satelital por WhatsApp?",
+            timestamp: new Date(Date.now() - 10700000).toISOString()
+          }
+        ],
+        createdAt: new Date(Date.now() - 21600000).toISOString(),
+        updatedAt: new Date().toISOString()
+      }
+    };
     this.wsBroadcaster = null;
   }
 
