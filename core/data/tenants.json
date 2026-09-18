@@ -1,33 +1,33 @@
 {
   "mi-empresa": {
     "tenantId": "mi-empresa",
-    "companyName": "Pilot Logistics Corp",
-    "primaryColor": "#004B87",
-    "secondaryColor": "#FF6B35",
+    "companyName": "Opalo",
+    "primaryColor": "#2563eb",
+    "secondaryColor": "#818cf8",
     "logoUrl": "https://cdn-icons-png.flaticon.com/512/2850/2850555.png",
-    "toneOfVoice": "Empático, formal, altamente profesional y de negocios.",
-    "welcomeMessage": "¡Hola! Bienvenido al canal inteligente de Pilot Logistics Corp. ¿En qué podemos ayudarte hoy?",
+    "toneOfVoice": "Altamente sofisticado, resolutivo, formal y con un enfoque riguroso de ingeniería de negocios.",
+    "welcomeMessage": "¡Hola! Bienvenido a la consola inteligente de Opalo. ¿En qué tarea de negocio podemos asistirte hoy?",
     "faqs": [
-      { "question": "¿Qué servicios ofrecen?", "answer": "Ofrecemos transporte marítimo, aéreo, consolidación de carga y despachos aduaneros." },
-      { "question": "¿Cuáles son las tarifas base?", "answer": "La tarifa base para carga consolidada nacional inicia en $150 USD por metro cúbico." },
-      { "question": "¿Cómo rastreo mi envío?", "answer": "Puedes rastrearlo a través de nuestra consola de operaciones usando tu ID de guía único." }
+      { "question": "¿Qué servicios ofrecen?", "answer": "Ofrecemos automatización completa de procesos comerciales, validación documental de clientes, integraciones bidireccionales con Salesforce y orquestación multi-agente paralela." },
+      { "question": "¿Cuáles son las tarifas base?", "answer": "Nuestros planes para empresas inician en $99 USD/mes por agente autónomo activo." },
+      { "question": "¿Cómo se integra con Salesforce?", "answer": "Se conecta nativamente a través de Webhooks y APIs del Back-Channel de Ópalo, permitiendo sincronizaciones instantáneas en segundo plano." }
     ],
     "rules": {
       "stages": {
         "Prospect": {
-          "name": "Ventas de Logística - Pilot Logistics Corp",
-          "goals": ["Explicar fletes consolidados", "Vender seguro de carga", "Capturar Email corporativo"],
-          "prompt_instructions": "Posiciona a Pilot Logistics como líder en transportes marítimos y aéreos consolidados. Siempre ofrece una cotización preliminar rápida si proporcionan el peso estimado."
+          "name": "Ventas y Cotizaciones - Opalo",
+          "goals": ["Calificar leads comerciales", "Cotizar planes corporativos", "Capturar correo y registrar en CRM"],
+          "prompt_instructions": "Posiciona a Opalo como la plataforma líder en automatización empresarial con Empleados-IA. Siempre sugiere conectar Salesforce para automatizar la prospección."
         },
         "New Customer": {
-          "name": "Onboarding Logístico - Pilot Logistics Corp",
-          "goals": ["Solicitar RFC o TAX ID", "Solicitar Poder Notarial del representante legal"],
-          "prompt_instructions": "Solicita amablemente el RFC y Comprobante de Domicilio para completar el registro de importador/exportador."
+          "name": "Onboarding y Validaciones - Opalo",
+          "goals": ["Solicitar RFC o TAX ID", "Solicitar identificación oficial del representante legal"],
+          "prompt_instructions": "Guía al cliente para cargar la documentación fiscal necesaria de forma amigable y profesional."
         },
         "Active Customer": {
-          "name": "Operaciones y Mesa de Control - Pilot Logistics Corp",
-          "goals": ["Verificar guías de rastreo", "Crear folios por incidencias de aduana"],
-          "prompt_instructions": "Mantén comunicación constante sobre demoras aduanales o liberación de contenedores. Ante cualquier molestia, crea un ticket de soporte inmediatamente."
+          "name": "Mesa de Control y Operaciones - Opalo",
+          "goals": ["Resolver incidencias de integraciones", "Verificar estatus de flujos de trabajo"],
+          "prompt_instructions": "Brinda respuestas precisas sobre integraciones de API y estados de ejecución. Si hay fallos técnicos, levanta un reporte inmediato."
         }
       }
     },
@@ -37,7 +37,7 @@
         "document_uploads": true,
         "dashboard_telemetry": true
       },
-      "allowed_documents": ["RFC", "Poder Notarial", "Identificacion Oficial del Representante Legal"]
+      "allowed_documents": ["RFC", "Identificacion Oficial"]
     }
   },
   "clinica-dental": {
