@@ -10,13 +10,8 @@ class StateMachine {
         history: [
           {
             role: "user",
-            content: "¿Tienen promociones para autos nuevos? Estoy buscando opciones de pago.",
+            content: "Hola, estoy buscando pantalones con protecciones. Vi las opciones de ILM, Foxkull, LS2 y Scoyco. ¿Cuál me recomiendan comprar y por qué?",
             timestamp: new Date(Date.now() - 3600000).toISOString()
-          },
-          {
-            role: "assistant",
-            content: "¡Hola, Gabriel! Sí, tenemos promociones espectaculares para autos nuevos este mes con tasas de interés preferenciales desde el 9.9% y opciones de enganche diferido. ¿Qué tipo de modelo o segmento estás buscando para tu negocio o uso personal?",
-            timestamp: new Date(Date.now() - 3500000).toISOString()
           }
         ],
         createdAt: new Date(Date.now() - 7200000).toISOString(),
@@ -31,12 +26,12 @@ class StateMachine {
         history: [
           {
             role: "user",
-            content: "Me interesa avanzar con el financiamiento del auto familiar, ¿cuáles son los siguientes pasos?",
+            content: "Me interesa avanzar con la compra de la chamarra LS2 de motociclismo, ¿cuáles son los siguientes pasos?",
             timestamp: new Date(Date.now() - 7200000).toISOString()
           },
           {
             role: "assistant",
-            content: "Hola Ezequiel. ¡Excelente elección! Para poder dar de alta tu expediente comercial y procesar la aprobación crediticia de tu unidad, el equipo de Onboarding requiere que cargues tu identificación oficial, tu RFC y un comprobante de domicilio no mayor a 3 meses. ¿Tienes estos documentos a la mano?",
+            content: "Hola Ezequiel. ¡Excelente elección! Para poder dar de alta tu expediente de facturación de Opalo Moto Gear, el equipo de Onboarding requiere que cargues tu identificación oficial y tu RFC. ¿Los tienes a la mano?",
             timestamp: new Date(Date.now() - 7100000).toISOString()
           }
         ],
@@ -52,12 +47,12 @@ class StateMachine {
         history: [
           {
             role: "user",
-            content: "Hola, ¿me podrían confirmar si mi unidad ya pasó el control de calidad de la mesa de control aduanal? La fecha de entrega era hoy.",
+            content: "Hola, ¿me podrían confirmar si mi envío de las botas Scoyco ya fue liberado por la mensajería urgente? La fecha de entrega era hoy.",
             timestamp: new Date(Date.now() - 10800000).toISOString()
           },
           {
             role: "assistant",
-            content: "Hola Franco. Sí, tu unidad familiar ya fue autorizada y liberada por la mesa de control aduanal esta mañana. Tu expediente está 100% aprobado. En este momento el transportista está programando la ruta de entrega. ¿Te gustaría que te enviemos el link de rastreo satelital por WhatsApp?",
+            content: "Hola Franco. Sí, tus botas Scoyco ya fueron liberadas de bodega de tránsito esta mañana por DHL Express. El número de guía es DHL-MX-7701. El repartidor está en ruta de entrega y llegará a tu domicilio antes de las 3:00 PM de hoy.",
             timestamp: new Date(Date.now() - 10700000).toISOString()
           }
         ],
