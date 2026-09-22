@@ -1,20 +1,32 @@
 [
   {
     "id": "all",
-    "name": "Todos los Proyectos",
-    "icon": "🌐",
-    "description": "Vista global del equipo y todos los agentes activos"
+    "name": "Todos los Departamentos",
+    "icon": "🏢",
+    "description": "Visión global de la organización"
   },
   {
-    "id": "solo-emprendo",
-    "name": "Solo Emprendo",
+    "id": "direccion",
+    "name": "Dirección General",
+    "icon": "👔",
+    "description": "Coordinación ejecutiva y estrategia corporativa"
+  },
+  {
+    "id": "marketing",
+    "name": "Marketing & Crecimiento",
     "icon": "🚀",
-    "description": "Academia, Máster de IA y dinamización de comunidades de José"
+    "description": "Adquisición, redes sociales y contenido"
   },
   {
-    "id": "personal",
-    "name": "Personal & Gastos",
-    "icon": "💼",
-    "description": "Contabilidad, recibos, nutrición y agenda personal"
+    "id": "finanzas",
+    "name": "Finanzas & Operaciones",
+    "icon": "📊",
+    "description": "Facturación, presupuestos y control de costes"
+  },
+  {
+    "id": "soporte",
+    "name": "Soporte & Clientes",
+    "icon": "🎧",
+    "description": "Atención post-venta y resolución de dudas"
   }
 ]

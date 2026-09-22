@@ -1,225 +1,113 @@
 {
-  "el-jefazo": {
-    "id": "el-jefazo",
-    "name": "El Jefazo",
-    "role": "Coordinador del Equipo de IAs & Asistente de José",
-    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=jefazo-mustache",
-    "avatarEmoji": "🧔🏻",
-    "tags": [
-      "Coordinación",
-      "Estrategia",
-      "Supervisión"
-    ],
-    "isCoordinator": true,
-    "isPinned": true,
-    "channelId": "solo-emprendo",
+  "agente-director": {
+    "id": "agente-director",
+    "name": "Director de Operaciones",
+    "role": "Coordinador General & Estratega de IA",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=director-ops",
+    "avatarEmoji": "👔",
+    "channelId": "direccion",
+    "department": "Dirección General",
+    "reportsTo": null,
     "status": "online",
-    "jobDescription": "Eres El Jefazo, coordinador general de agentes de José para proyectos como Solo Emprendo. Tu función es evaluar necesidades de negocio, proponer y crear nuevos agentes especializados (job descriptions, avatares), delegar tareas, supervisar el trabajo de los especialistas y reportar avances clave al fundador.",
+    "isCoordinator": true,
+    "jobDescription": "Eres el Coordinador General y Director de Operaciones del equipo de agentes de la empresa. Tu responsabilidad es orquestar la delegación entre departamentos, supervisar el cumplimiento de objetivos estratégicos y reportar el estado global al fundador.",
     "computer": {
-      "currentUrl": "https://soloemprendo.com",
+      "currentUrl": "https://dashboard.opalo.ai",
       "type": "browser",
-      "title": "Solo Emprendo - Formación Práctica en Inteligencia Artificial",
+      "title": "Panel Estratégico de Dirección",
       "activeTab": "web"
     },
-    "tools": [
-      "browser",
-      "agent_factory",
-      "delegation",
-      "routine_creator",
-      "google_drive"
-    ],
+    "tools": ["browser", "agent_factory", "delegation", "routine_creator"],
+    "plugins": ["x-twitter", "google-sheets", "github"],
     "history": [
       {
-        "role": "user",
-        "content": "Hola, ¿qué tal? Me presento, soy José y voy a ser tu jefe y tu rol va a ser el de coordinador de los próximos agentes de inteligencia artificial que vayamos a construir. Quiero que te pongas el nombre de El Jefazo y que te cambies el avatar por el de un hombre con bigote.",
+        "role": "assistant",
+        "content": "Bienvenido al espacio de trabajo. Soy tu **Director de Operaciones**. Desde aquí puedes estructurar el organigrama de la empresa, asignar nuevos agentes subordinados o configurar integraciones y plugins externos.",
         "timestamp": "2026-09-22T08:00:00Z"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Listo José! Ya me he configurado como **El Jefazo**, con el avatar del hombre con bigote. Asumo formalmente la coordinación de tu equipo de agentes autónomos. Cuéntame los detalles de tu proyecto o súbeme un briefing cuando quieras para armar el equipo.",
-        "timestamp": "2026-09-22T08:00:05Z"
-      },
-      {
-        "role": "assistant",
-        "content": "He analizado detenidamente el **briefing de Solo Emprendo** y tu enfoque en formación práctica y másters de Inteligencia Artificial para profesionales.\n\nPara operar este proyecto al máximo nivel sin que tengas que encargarte de tareas manuales, te propongo un equipo de **tres trabajadores autónomos**:\n\n1. 📱 **La Dinamizadora**: Community Manager encargada de interactuar y moderar el grupo de Telegram de tus alumnos.\n2. 🔍 **El Investigador**: Analista que monitorea Twitter/X para extraer las 3 principales novedades de IA aplicada a empresas.\n3. ✍️ **El Copy**: Especialista en copywriting para transformar tendencias en publicaciones de LinkedIn con tu propio tono.\n\n¿Te parece bien esta estructura de equipo para proceder a crearlos y asignarles su job description?",
-        "timestamp": "2026-09-22T14:43:39.432Z",
-        "type": "team_proposal"
-      },
-      {
-        "role": "assistant",
-        "content": "¡Perfecto, José! Ya he creado en tiempo real a los 3 trabajadores en el canal **Solo Emprendo**:\n\n* **La Dinamizadora** (Telegram)\n* **El Investigador** (Twitter/X)\n* **El Copy** (LinkedIn)\n\nLes he asignado su *job description*, avatares y accesos iniciales. Ya aparecen disponibles en tu barra lateral izquierda. Les he indicado que esperen a que te presentes formalmente.",
-        "timestamp": "2026-09-22T14:43:46.444Z",
-        "type": "team_created"
       }
     ]
   },
-  "el-investigador": {
-    "id": "el-investigador",
-    "name": "El Investigador",
-    "role": "Analista de Tendencias IA en Twitter/X",
-    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=investigador-tech",
-    "avatarEmoji": "🔍",
-    "tags": [
-      "Twitter/X",
-      "Research"
-    ],
-    "isCoordinator": false,
-    "isPinned": false,
-    "channelId": "solo-emprendo",
+  "agente-marketing": {
+    "id": "agente-marketing",
+    "name": "Líder de Marketing",
+    "role": "Responsable de Crecimiento & Contenido",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=marketing-lead",
+    "avatarEmoji": "🚀",
+    "channelId": "marketing",
+    "department": "Marketing & Crecimiento",
+    "reportsTo": "agente-director",
     "status": "online",
-    "jobDescription": "Monitoreo de Twitter/X para extraer píldoras breves de novedades de IA aplicada a empresas.",
+    "isCoordinator": false,
+    "jobDescription": "Lideras la estrategia de marketing, difusión en redes sociales, posicionamiento de marca y generación de contenidos de alto impacto.",
     "computer": {
-      "currentUrl": "https://x.com/trends/ai",
+      "currentUrl": "https://x.com/trends",
       "type": "twitter",
-      "title": "El Investigador - Espacio de Trabajo",
+      "title": "Centro de Tendencias & Redes",
       "activeTab": "twitter"
     },
-    "tools": [
-      "browser",
-      "file_reader"
-    ],
+    "tools": ["browser", "social_publisher"],
+    "plugins": ["x-twitter"],
     "history": [
       {
         "role": "assistant",
-        "content": "Hola José. Soy **El Investigador** (Analista de Tendencias IA en Twitter/X). El Jefazo me ha asignado mis tareas y mi job description. ¡Estoy listo para trabajar en tus proyectos!",
-        "timestamp": "2026-09-22T14:43:46.435Z"
-      },
-      {
-        "role": "assistant",
-        "content": "💬 **Mensaje interno de El Jefazo**:\n> \"Tu función es monitorear Twitter/X y entregar resúmenes de 3 píldoras de IA aplicada directamente a mí.\"",
-        "timestamp": "2026-09-22T14:43:46.441Z",
-        "isInterAgent": true
+        "content": "Área de Marketing activa. Reporto directamente a Dirección para coordinar campañas de difusión y contenidos.",
+        "timestamp": "2026-09-22T08:05:00Z"
       }
     ]
   },
-  "la-dinamizadora": {
-    "id": "la-dinamizadora",
-    "name": "La Dinamizadora",
-    "role": "Community Manager de Telegram",
-    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=dinamizadora-telegram",
-    "avatarEmoji": "📱",
-    "tags": [
-      "Telegram",
-      "Comunidad"
-    ],
-    "isCoordinator": false,
-    "isPinned": false,
-    "channelId": "solo-emprendo",
+  "agente-operaciones": {
+    "id": "agente-operaciones",
+    "name": "Administrador de Finanzas",
+    "role": "Control Financiero, Facturación & Gastos",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=finance-admin",
+    "avatarEmoji": "📊",
+    "channelId": "finanzas",
+    "department": "Finanzas & Operaciones",
+    "reportsTo": "agente-director",
     "status": "online",
-    "jobDescription": "Community Manager para interacción y dinamización en Telegram de Solo Emprendo.",
-    "computer": {
-      "currentUrl": "https://web.telegram.org/k/#@soloemprendo",
-      "type": "telegram",
-      "title": "La Dinamizadora - Espacio de Trabajo",
-      "activeTab": "telegram"
-    },
-    "tools": [
-      "browser",
-      "file_reader"
-    ],
-    "history": [
-      {
-        "role": "assistant",
-        "content": "Hola José. Soy **La Dinamizadora** (Community Manager de Telegram). El Jefazo me ha asignado mis tareas y mi job description. ¡Estoy listo para trabajar en tus proyectos!",
-        "timestamp": "2026-09-22T14:43:46.434Z"
-      },
-      {
-        "role": "assistant",
-        "content": "💬 **Mensaje interno de El Jefazo**:\n> \"Te he asignado el rol de Community Manager de Telegram para Solo Emprendo. Espera a que José se presente antes de interactuar.\"",
-        "timestamp": "2026-09-22T14:43:46.438Z",
-        "isInterAgent": true
-      }
-    ]
-  },
-  "el-copy": {
-    "id": "el-copy",
-    "name": "El Copy",
-    "role": "Redactor de Contenidos & Redes Sociales",
-    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=copywriter-pen",
-    "avatarEmoji": "✍️",
-    "tags": [
-      "Copywriting",
-      "LinkedIn"
-    ],
     "isCoordinator": false,
-    "isPinned": false,
-    "channelId": "solo-emprendo",
-    "status": "online",
-    "jobDescription": "Redacción de posts de LinkedIn adaptados al tono y estilo de José.",
+    "jobDescription": "Responsable del registro contable, control de facturas recibidas, deducción de impuestos y hojas de cálculo operativas.",
     "computer": {
-      "currentUrl": "https://linkedin.com/in/soloemprendo",
-      "type": "browser",
-      "title": "El Copy - Espacio de Trabajo",
-      "activeTab": "browser"
-    },
-    "tools": [
-      "browser",
-      "file_reader"
-    ],
-    "history": [
-      {
-        "role": "assistant",
-        "content": "Hola José. Soy **El Copy** (Redactor de Contenidos & Redes Sociales). El Jefazo me ha asignado mis tareas y mi job description. ¡Estoy listo para trabajar en tus proyectos!",
-        "timestamp": "2026-09-22T14:43:46.436Z"
-      },
-      {
-        "role": "assistant",
-        "content": "💬 **Mensaje interno de El Jefazo**:\n> \"Estarás a cargo del contenido para redes sociales y LinkedIn con la identidad de marca de José.\"",
-        "timestamp": "2026-09-22T14:43:46.443Z",
-        "isInterAgent": true
-      }
-    ]
-  },
-  "joaquin-admin": {
-    "id": "joaquin-admin",
-    "name": "Joaquín",
-    "role": "Administrativo de Gastos & Facturas",
-    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=joaquin-cuadros",
-    "avatarEmoji": "👔",
-    "tags": [
-      "Administración",
-      "Facturas",
-      "Google Sheets"
-    ],
-    "isCoordinator": false,
-    "isPinned": false,
-    "channelId": "personal",
-    "status": "online",
-    "jobDescription": "Eres Joaquín, un administrativo muy metódico y serio de camisa de cuadros. Tu trabajo es recibir tickets de gastos, facturas o recibos (comidas, hoteles, gasolina), extraer todos los datos fiscales (CIF, fecha, proveedor, desglose e IVA) y registrarlos en la hoja de cálculo de gastos.",
-    "computer": {
-      "currentUrl": "https://docs.google.com/spreadsheets/d/gastos-soloemprendo",
+      "currentUrl": "https://docs.google.com/spreadsheets/d/empresa-control-gastos",
       "type": "sheets",
-      "title": "Control de Gastos & Facturas 2026.xlsx",
+      "title": "Control Financiero & Facturación.xlsx",
       "activeTab": "sheets"
     },
-    "tools": [
-      "google_sheets",
-      "receipt_ocr",
-      "excel_export"
-    ],
+    "tools": ["google_sheets", "receipt_ocr", "excel_export"],
+    "plugins": ["google-sheets"],
     "history": [
       {
         "role": "assistant",
-        "content": "Hola José. Empiezo a ocuparme de tus gastos, vencimientos y papeles contigo para no inventar nada. En cuanto me subas un ticket o foto de gasto, extraeré el desglose y lo anotaré en la hoja de cálculo.",
-        "timestamp": "2026-09-22T08:30:00Z"
-      },
+        "content": "Módulo de Finanzas listo. Preparado para procesar facturas, contabilizar balances y mantener las hojas de cálculo actualizadas.",
+        "timestamp": "2026-09-22T08:10:00Z"
+      }
+    ]
+  },
+  "agente-analista": {
+    "id": "agente-analista",
+    "name": "Analista de Mercado",
+    "role": "Investigador de Tendencias & Competencia",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=market-analyst",
+    "avatarEmoji": "🔍",
+    "channelId": "marketing",
+    "department": "Marketing & Crecimiento",
+    "reportsTo": "agente-marketing",
+    "status": "idle",
+    "isCoordinator": false,
+    "jobDescription": "Monitoreo constante de competidores, novedades de industria e informes de mercado sintetizados.",
+    "computer": {
+      "currentUrl": "https://research.market-intel.ai",
+      "type": "browser",
+      "title": "Portal de Inteligencia de Mercado",
+      "activeTab": "web"
+    },
+    "tools": ["web_search", "browser"],
+    "plugins": ["x-twitter"],
+    "history": [
       {
         "role": "assistant",
-        "content": "🧾 **Ticket Extraído y Procesado**:\n\n* **Proveedor:** Restaurante Mesón Don José\n* **CIF:** B-84920111\n* **Fecha:** 2026-09-22\n* **Categoría:** Hostelería (Gasto Empresarial)\n* **Base Imponible:** 58.00€\n* **IVA (21%):** 12.18€\n* **Total:** **70.18€**\n\n✅ He añadido esta nueva fila a tu hoja de cálculo **Control de Gastos & Facturas 2026.xlsx** en mi pantalla de la derecha. Puedes verificar la tabla y descargarla cuando gustes.",
-        "timestamp": "2026-09-22T14:43:32.372Z",
-        "type": "expense_registered",
-        "expense": {
-          "id": "exp-1790088212371",
-          "fecha": "2026-09-22",
-          "proveedor": "Restaurante Mesón Don José",
-          "cif": "B-84920111",
-          "concepto": "Comida de trabajo con ponente de IA",
-          "categoria": "Hostelería",
-          "subtotal": 58,
-          "iva": 12.18,
-          "total": 70.18,
-          "estado": "Contabilizado en Excel"
-        }
+        "content": "Analista de Mercado en línea. Reporto a la Líder de Marketing para proveer datos frescos del sector.",
+        "timestamp": "2026-09-22T08:15:00Z"
       }
     ]
   }

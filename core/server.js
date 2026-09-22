@@ -30,7 +30,12 @@ app.post('/api/meta/consult', (req, res) => chatController.runConsultingProcess(
 app.get('/api/grok/agents', (req, res) => grokBotController.getAgents(req, res));
 app.post('/api/grok/agents', (req, res) => grokBotController.createAgent(req, res));
 app.patch('/api/grok/agents/:id', (req, res) => grokBotController.updateAgent(req, res));
+app.patch('/api/grok/agents/:id/hierarchy', (req, res) => grokBotController.updateHierarchy(req, res));
+app.post('/api/grok/agents/:id/toggle-plugin', (req, res) => grokBotController.toggleAgentPlugin(req, res));
 app.delete('/api/grok/agents/:id', (req, res) => grokBotController.deleteAgent(req, res));
+
+app.get('/api/grok/plugins', (req, res) => grokBotController.getPlugins(req, res));
+app.patch('/api/grok/plugins/:id', (req, res) => grokBotController.updatePlugin(req, res));
 
 app.get('/api/grok/channels', (req, res) => grokBotController.getChannels(req, res));
 app.post('/api/grok/channels', (req, res) => grokBotController.createChannel(req, res));
@@ -62,6 +67,7 @@ wss.on('connection', (ws) => {
     channels: agentTeamService.getAllChannels(),
     routines: agentTeamService.getAllRoutines(),
     expenses: agentTeamService.getAllExpenses(),
+    plugins: agentTeamService.getAllPlugins(),
     interAgentLogs: agentTeamService.getInterAgentLogs()
   }));
 

@@ -6,6 +6,7 @@ const CHANNELS_FILE = path.join(__dirname, '../../data/channels.json');
 const ROUTINES_FILE = path.join(__dirname, '../../data/routines.json');
 const LOGS_FILE = path.join(__dirname, '../../data/inter_agent_logs.json');
 const EXPENSES_FILE = path.join(__dirname, '../../data/expenses.json');
+const PLUGINS_FILE = path.join(__dirname, '../../data/plugins.json');
 
 class AgentTeamService {
   constructor() {
@@ -53,7 +54,22 @@ class AgentTeamService {
     return agents[agentId] || null;
   }
 
-  createAgent({ name, role, avatar, avatarEmoji, channelId, jobDescription, tags, tools, computerUrl, computerType }) {
+  createAgent({
+    name,
+    role,
+    avatar,
+    avatarEmoji,
+    channelId,
+    department,
+    reportsTo,
+    isCoordinator,
+    jobDescription,
+    tags,
+    tools,
+    plugins,
+    computerUrl,
+    computerType
+  }) {
     const agents = this.getAllAgents();
     const id = name.toLowerCase()
       .normalize("NFD").replace(/[\u0300-\u036f]/g, "")
@@ -63,26 +79,29 @@ class AgentTeamService {
     const newAgent = {
       id,
       name,
-      role: role || 'Especialista de Inteligencia Artificial',
+      role: role || 'Especialista Autónomo',
       avatar: avatar || `https://api.dicebear.com/7.x/bottts/svg?seed=${id}`,
       avatarEmoji: avatarEmoji || '🤖',
-      tags: tags || ['Especialista'],
-      isCoordinator: false,
-      isPinned: false,
-      channelId: channelId || 'solo-emprendo',
+      tags: tags || ['Operativo'],
+      isCoordinator: isCoordinator === true || isCoordinator === 'true',
+      isPinned: isCoordinator === true || isCoordinator === 'true',
+      channelId: channelId || 'direccion',
+      department: department || 'Dirección General',
+      reportsTo: reportsTo && reportsTo !== 'none' ? reportsTo : null,
       status: 'online',
-      jobDescription: jobDescription || `Eres ${name}, especialista dedicado a ${role}.`,
+      jobDescription: jobDescription || `Eres ${name}, especialista asignado a ${role}. Cumples tus tareas con autonomía, utilizas tus herramientas autorizadas y reportas a tu responsable directo.`,
       computer: {
-        currentUrl: computerUrl || 'https://soloemprendo.com',
+        currentUrl: computerUrl || 'https://dashboard.opalo.ai',
         type: computerType || 'browser',
         title: `${name} - Espacio de Trabajo`,
         activeTab: computerType || 'web'
       },
       tools: tools || ['browser', 'file_reader'],
+      plugins: plugins || [],
       history: [
         {
           role: 'assistant',
-          content: `Hola José. Soy **${name}** (${role}). El Jefazo me ha asignado mis tareas y mi job description. ¡Estoy listo para trabajar en tus proyectos!`,
+          content: `Hola. He sido incorporado formalmente al organigrama como **${name}** (${role}). Estoy listo para operar con autonomía en el departamento de **${department || 'General'}**.`,
           timestamp: new Date().toISOString()
         }
       ]
@@ -103,10 +122,27 @@ class AgentTeamService {
     return agents[agentId];
   }
 
+  updateAgentHierarchy(agentId, reportsTo) {
+    const agents = this.getAllAgents();
+    if (!agents[agentId]) return null;
+    agents[agentId].reportsTo = (reportsTo && reportsTo !== 'none') ? reportsTo : null;
+    this._writeJson(AGENTS_FILE, agents);
+    this.broadcast('hierarchy_updated', { agentId, reportsTo: agents[agentId].reportsTo });
+    return agents[agentId];
+  }
+
   deleteAgent(agentId) {
     const agents = this.getAllAgents();
     if (!agents[agentId]) return false;
     delete agents[agentId];
+    
+    // Also reassign subordinate agents whose reportsTo was this deleted agent
+    Object.values(agents).forEach(ag => {
+      if (ag.reportsTo === agentId) {
+        ag.reportsTo = null;
+      }
+    });
+
     this._writeJson(AGENTS_FILE, agents);
     this.broadcast('agent_deleted', { agentId });
     return true;
@@ -130,7 +166,53 @@ class AgentTeamService {
     return message;
   }
 
-  // --- Channels / Projects ---
+  // --- Plugins & Integrations Hub ---
+  getAllPlugins() {
+    return this._readJson(PLUGINS_FILE, []);
+  }
+
+  updatePlugin(pluginId, updates) {
+    const plugins = this.getAllPlugins();
+    const idx = plugins.findIndex(p => p.id === pluginId);
+    if (idx === -1) return null;
+
+    plugins[idx] = { ...plugins[idx], ...updates };
+    this._writeJson(PLUGINS_FILE, plugins);
+    this.broadcast('plugin_updated', { plugin: plugins[idx] });
+    return plugins[idx];
+  }
+
+  toggleAgentPlugin(agentId, pluginId) {
+    const agents = this.getAllAgents();
+    const plugins = this.getAllPlugins();
+    const agent = agents[agentId];
+    const plugin = plugins.find(p => p.id === pluginId);
+
+    if (!agent || !plugin) return false;
+
+    if (!agent.plugins) agent.plugins = [];
+    const hasPlugin = agent.plugins.includes(pluginId);
+
+    if (hasPlugin) {
+      agent.plugins = agent.plugins.filter(p => p !== pluginId);
+      plugin.assignedAgents = (plugin.assignedAgents || []).filter(a => a !== agentId);
+    } else {
+      agent.plugins.push(pluginId);
+      if (!plugin.assignedAgents) plugin.assignedAgents = [];
+      if (!plugin.assignedAgents.includes(agentId)) {
+        plugin.assignedAgents.push(agentId);
+      }
+    }
+
+    this._writeJson(AGENTS_FILE, agents);
+    this._writeJson(PLUGINS_FILE, plugins);
+
+    this.broadcast('agent_updated', { agent });
+    this.broadcast('plugin_updated', { plugin });
+    return { agent, plugin };
+  }
+
+  // --- Channels / Departments ---
   getAllChannels() {
     return this._readJson(CHANNELS_FILE, []);
   }
@@ -145,7 +227,7 @@ class AgentTeamService {
     const newChannel = {
       id,
       name,
-      icon: icon || '📁',
+      icon: icon || '🏢',
       description: description || ''
     };
 
@@ -190,27 +272,24 @@ class AgentTeamService {
     const agent = this.getAgent(routine.agentId);
     const now = new Date().toISOString();
 
-    let output = '';
-    if (routine.agentId === 'el-investigador') {
-      output = `📡 **Briefing Diario de IA Aplicada (9:00 AM)**:\n1. **OpenAI Astra & GPT-6**: Nuevas APIs multimodales de voz y ejecución de ordenador.\n2. **Voice Workspace & Copilots**: Adopción masiva de agentes de audio en entornos corporativos.\n3. **Fable 5.1 & Modelos Autónomos**: Automatización de workflows sin intervención humana.`;
-    } else {
-      output = `⚡ Tarea programada ejecutada con éxito: "${routine.title}". Resultados consolidados sin novedades críticas.`;
-    }
+    const output = `⚡ Tarea programada ejecutada con éxito: "${routine.title}". Parámetros analizados y reportados al supervisor jerárquico.`;
 
     routine.lastRun = now;
     routine.lastOutput = output;
     this._writeJson(ROUTINES_FILE, routines);
 
-    // Add to agent's history
+    // Add to agent history
     this.addMessage(routine.agentId, 'assistant', output, { isRoutineExecution: true, routineTitle: routine.title });
 
-    // Report to El Jefazo automatically (Hierarchical management)
-    this.sendInterAgentMessage(
-      routine.agentId,
-      'el-jefazo',
-      `Ejecuté la rutina programada "${routine.title}". Los resultados han sido archivados y notificados a José.`,
-      'routine_report'
-    );
+    // Report to supervisor if defined
+    if (agent && agent.reportsTo) {
+      this.sendInterAgentMessage(
+        routine.agentId,
+        agent.reportsTo,
+        `He completado la rutina autónoma programada: "${routine.title}". Resultados archivados en mi espacio de trabajo.`,
+        'routine_report'
+      );
+    }
 
     this.broadcast('routine_executed', { routine, output });
     return { routine, output };
@@ -241,14 +320,14 @@ class AgentTeamService {
     logs.unshift(logEntry);
     this._writeJson(LOGS_FILE, logs);
 
-    // Add a visible supervisory note in toAgent's history
+    // Add visible note in toAgent's history
     this.addMessage(toAgentId, 'assistant', `💬 **Mensaje interno de ${logEntry.fromName}**:\n> "${content}"`, { isInterAgent: true });
 
     this.broadcast('inter_agent_message', { log: logEntry });
     return logEntry;
   }
 
-  // --- Expenses & Sheets for Joaquin ---
+  // --- Expenses & Sheets ---
   getAllExpenses() {
     return this._readJson(EXPENSES_FILE, []);
   }
@@ -261,7 +340,7 @@ class AgentTeamService {
       proveedor: proveedor || 'Proveedor General',
       cif: cif || 'B-' + Math.floor(10000000 + Math.random() * 90000000),
       concepto: concepto || 'Gasto empresarial',
-      categoria: categoria || 'General',
+      categoria: categoria || 'Operaciones',
       subtotal: parseFloat(subtotal) || 0,
       iva: parseFloat(iva) || 0,
       total: parseFloat(total) || 0,
@@ -274,11 +353,9 @@ class AgentTeamService {
     return newExpense;
   }
 
-  // --- Background Cron Scheduler ---
   initCronRunner() {
-    // Check every 60 seconds
     setInterval(() => {
-      // In production this checks routine cron expressions
+      // In production runs scheduled cron triggers
     }, 60000);
   }
 }

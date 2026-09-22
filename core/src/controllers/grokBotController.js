@@ -12,7 +12,7 @@ class GrokBotController {
     }
   }
 
-  // Create an agent manually
+  // Create an agent from scratch
   async createAgent(req, res) {
     try {
       const newAgent = agentTeamService.createAgent(req.body);
@@ -33,6 +33,18 @@ class GrokBotController {
     }
   }
 
+  // Update organigram hierarchy link
+  async updateHierarchy(req, res) {
+    try {
+      const { reportsTo } = req.body;
+      const updated = agentTeamService.updateAgentHierarchy(req.params.id, reportsTo);
+      if (!updated) return res.status(404).json({ success: false, error: 'Agent not found' });
+      return res.json({ success: true, agent: updated });
+    } catch (err) {
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
   // Delete an agent
   async deleteAgent(req, res) {
     try {
@@ -43,7 +55,7 @@ class GrokBotController {
     }
   }
 
-  // Get channels
+  // Get channels / departments
   async getChannels(req, res) {
     try {
       const channels = agentTeamService.getAllChannels();
@@ -53,11 +65,42 @@ class GrokBotController {
     }
   }
 
-  // Create channel
+  // Create channel / department
   async createChannel(req, res) {
     try {
       const newChannel = agentTeamService.createChannel(req.body);
       return res.json({ success: true, channel: newChannel });
+    } catch (err) {
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  // Plugins Hub endpoints
+  async getPlugins(req, res) {
+    try {
+      const plugins = agentTeamService.getAllPlugins();
+      return res.json({ success: true, plugins });
+    } catch (err) {
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async updatePlugin(req, res) {
+    try {
+      const updated = agentTeamService.updatePlugin(req.params.id, req.body);
+      if (!updated) return res.status(404).json({ success: false, error: 'Plugin not found' });
+      return res.json({ success: true, plugin: updated });
+    } catch (err) {
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  async toggleAgentPlugin(req, res) {
+    try {
+      const { pluginId } = req.body;
+      const result = agentTeamService.toggleAgentPlugin(req.params.id, pluginId);
+      if (!result) return res.status(404).json({ success: false, error: 'Agent or Plugin not found' });
+      return res.json({ success: true, ...result });
     } catch (err) {
       return res.status(500).json({ success: false, error: err.message });
     }
@@ -83,7 +126,7 @@ class GrokBotController {
     }
   }
 
-  // Execute a routine on-demand
+  // Execute routine on demand
   async executeRoutine(req, res) {
     try {
       const result = agentTeamService.executeRoutine(req.params.id);
@@ -104,7 +147,7 @@ class GrokBotController {
     }
   }
 
-  // Get expenses / sheet rows
+  // Get expenses
   async getExpenses(req, res) {
     try {
       const expenses = agentTeamService.getAllExpenses();
@@ -114,7 +157,7 @@ class GrokBotController {
     }
   }
 
-  // Main Grok Bot chat endpoint
+  // Handle chat
   async handleChat(req, res) {
     try {
       const { agentId, message, attachment } = req.body;

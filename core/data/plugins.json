@@ -1,0 +1,98 @@
+[
+  {
+    "id": "x-twitter",
+    "name": "Twitter / X Conector",
+    "icon": "𝕏",
+    "category": "Social & Research",
+    "description": "Monitoreo en tiempo real de tendencias, análisis de publicaciones y streaming de noticias con la API oficial de X.",
+    "installed": true,
+    "status": "connected",
+    "credentials": {
+      "apiKey": "xai_live_892348123******",
+      "environment": "production"
+    },
+    "assignedAgents": ["agente-director"]
+  },
+  {
+    "id": "google-sheets",
+    "name": "Google Sheets & Excel",
+    "icon": "📊",
+    "category": "Productividad & Datos",
+    "description": "Generación y edición de hojas de cálculo dinámicas, control de gastos, balances y exportación en .xlsx.",
+    "installed": true,
+    "status": "connected",
+    "credentials": {
+      "serviceAccount": "opalo-sheets-sa@opalo-cloud.iam.gserviceaccount.com",
+      "defaultSheetId": "1g92kL82kjasd0923_gastos"
+    },
+    "assignedAgents": ["agente-director"]
+  },
+  {
+    "id": "telegram",
+    "name": "Telegram Bot & Community",
+    "icon": "✈️",
+    "category": "Mensajería",
+    "description": "Automatización de grupos y canales de Telegram, respuestas automáticas a miembros y moderación 24/7.",
+    "installed": false,
+    "status": "disconnected",
+    "credentials": {
+      "botToken": "",
+      "chatId": ""
+    },
+    "assignedAgents": []
+  },
+  {
+    "id": "whatsapp-business",
+    "name": "WhatsApp Business Cloud",
+    "icon": "💬",
+    "category": "Mensajería & CRM",
+    "description": "Interacción oficial con clientes vía WhatsApp Business API, plantillas verificadas y flujos de ventas.",
+    "installed": false,
+    "status": "disconnected",
+    "credentials": {
+      "phoneNumberId": "",
+      "accessToken": ""
+    },
+    "assignedAgents": []
+  },
+  {
+    "id": "google-drive",
+    "name": "Google Drive & Docs",
+    "icon": "📁",
+    "category": "Archivos & Almacenamiento",
+    "description": "Lectura, análisis OCR e indexación de PDFs, facturas, contratos y briefings de proyectos.",
+    "installed": false,
+    "status": "disconnected",
+    "credentials": {
+      "folderId": ""
+    },
+    "assignedAgents": []
+  },
+  {
+    "id": "github",
+    "name": "GitHub & GitOps",
+    "icon": "🐙",
+    "category": "Desarrollo & DevOps",
+    "description": "Control de versiones, generación automática de Pull Requests y sincronización de código o configuraciones.",
+    "installed": true,
+    "status": "connected",
+    "credentials": {
+      "repository": "patriciomartin-xert/agent-platform",
+      "branch": "main"
+    },
+    "assignedAgents": ["agente-director"]
+  },
+  {
+    "id": "custom-webhook",
+    "name": "Webhooks & REST API",
+    "icon": "⚡",
+    "category": "Integración Personalizada",
+    "description": "Dispara llamadas HTTP POST/GET hacia tus servidores o bases de datos ante cualquier evento o resultado.",
+    "installed": false,
+    "status": "disconnected",
+    "credentials": {
+      "webhookUrl": ""
+    },
+    "assignedAgents": []
+  }
+]
