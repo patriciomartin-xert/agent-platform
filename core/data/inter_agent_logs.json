@@ -1,0 +1,57 @@
+[
+  {
+    "id": "log-1790088226442-fklb",
+    "fromAgentId": "el-jefazo",
+    "fromName": "El Jefazo",
+    "toAgentId": "el-copy",
+    "toName": "El Copy",
+    "type": "delegation",
+    "timestamp": "2026-09-22T14:43:46.442Z",
+    "content": "Estarás a cargo del contenido para redes sociales y LinkedIn con la identidad de marca de José.",
+    "status": "delivered"
+  },
+  {
+    "id": "log-1790088226440-fv6e",
+    "fromAgentId": "el-jefazo",
+    "fromName": "El Jefazo",
+    "toAgentId": "el-investigador",
+    "toName": "El Investigador",
+    "type": "delegation",
+    "timestamp": "2026-09-22T14:43:46.440Z",
+    "content": "Tu función es monitorear Twitter/X y entregar resúmenes de 3 píldoras de IA aplicada directamente a mí.",
+    "status": "delivered"
+  },
+  {
+    "id": "log-1790088226437-27lp",
+    "fromAgentId": "el-jefazo",
+    "fromName": "El Jefazo",
+    "toAgentId": "la-dinamizadora",
+    "toName": "La Dinamizadora",
+    "type": "delegation",
+    "timestamp": "2026-09-22T14:43:46.437Z",
+    "content": "Te he asignado el rol de Community Manager de Telegram para Solo Emprendo. Espera a que José se presente antes de interactuar.",
+    "status": "delivered"
+  },
+  {
+    "id": "log-001",
+    "fromAgentId": "el-investigador",
+    "fromName": "El Investigador",
+    "toAgentId": "el-jefazo",
+    "toName": "El Jefazo",
+    "type": "report",
+    "timestamp": "2026-09-22T08:18:00Z",
+    "content": "Primer brief entregado al Jefazo. José ha valorado el trabajo con un 10 sobre 10. Formato fijado: 3 píldoras breves de IA aplicada a empresas sin listas infinitas.",
+    "status": "delivered"
+  },
+  {
+    "id": "log-002",
+    "fromAgentId": "el-jefazo",
+    "fromName": "El Jefazo",
+    "toAgentId": "el-copy",
+    "toName": "El Copy",
+    "type": "delegation",
+    "timestamp": "2026-09-22T08:26:00Z",
+    "content": "Copy, toma las 3 píldoras del Investigador y prepara un borrador de post para LinkedIn siguiendo la voz de José.",
+    "status": "delivered"
+  }
+]

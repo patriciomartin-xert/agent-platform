@@ -1,0 +1,50 @@
+[
+  {
+    "id": "exp-1790088212371",
+    "fecha": "2026-09-22",
+    "proveedor": "Restaurante Mesón Don José",
+    "cif": "B-84920111",
+    "concepto": "Comida de trabajo con ponente de IA",
+    "categoria": "Hostelería",
+    "subtotal": 58,
+    "iva": 12.18,
+    "total": 70.18,
+    "estado": "Contabilizado en Excel"
+  },
+  {
+    "id": "exp-101",
+    "fecha": "2026-09-21",
+    "proveedor": "Restaurante El Asador",
+    "cif": "B-84920194",
+    "concepto": "Cena de trabajo con ponente de IA",
+    "categoria": "Hostelería",
+    "subtotal": 64.5,
+    "iva": 13.55,
+    "total": 78.05,
+    "estado": "Contabilizado"
+  },
+  {
+    "id": "exp-102",
+    "fecha": "2026-09-20",
+    "proveedor": "Hotel Plaza Cataluña",
+    "cif": "A-08234912",
+    "concepto": "Alojamiento máster presencial",
+    "categoria": "Viajes y Hotel",
+    "subtotal": 125,
+    "iva": 12.5,
+    "total": 137.5,
+    "estado": "Contabilizado"
+  },
+  {
+    "id": "exp-103",
+    "fecha": "2026-09-18",
+    "proveedor": "Estación de Servicio Repsol",
+    "cif": "A-28003704",
+    "concepto": "Combustible traslado evento",
+    "categoria": "Transporte",
+    "subtotal": 57.85,
+    "iva": 12.15,
+    "total": 70,
+    "estado": "Contabilizado"
+  }
+]

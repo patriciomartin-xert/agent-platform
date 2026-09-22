@@ -1,0 +1,26 @@
+[
+  {
+    "id": "routine-briefing-diario",
+    "agentId": "el-investigador",
+    "title": "Briefing Diario de IA Aplicada",
+    "schedule": "0 9 * * *",
+    "scheduleLabel": "Cada día a las 9:00 AM",
+    "instruction": "Conectarse a Twitter/X, rastrear principales noticias de IA aplicada a empresas y generar un brief de 3 píldoras clave para reportar al Jefazo.",
+    "enabled": true,
+    "lastRun": "2026-09-22T09:00:00Z",
+    "nextRun": "2026-09-23T09:00:00Z",
+    "lastOutput": "Entregadas 3 píldoras: 1. OpenAI Astra (GPT-6). 2. Voice Workspace. 3. Fable 5.1."
+  },
+  {
+    "id": "routine-1790088208459",
+    "agentId": "el-investigador",
+    "title": "Briefing Diario de IA Aplicada",
+    "schedule": "0 9 * * *",
+    "scheduleLabel": "Cada día a las 9:00 AM",
+    "instruction": "Rastrear Twitter/X en busca de tendencias de IA aplicada a empresas y generar un reporte de 3 píldoras clave.",
+    "enabled": true,
+    "lastRun": null,
+    "nextRun": "2026-09-23T14:43:28.459Z",
+    "lastOutput": null
+  }
+]

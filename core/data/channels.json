@@ -1,0 +1,20 @@
+[
+  {
+    "id": "all",
+    "name": "Todos los Proyectos",
+    "icon": "🌐",
+    "description": "Vista global del equipo y todos los agentes activos"
+  },
+  {
+    "id": "solo-emprendo",
+    "name": "Solo Emprendo",
+    "icon": "🚀",
+    "description": "Academia, Máster de IA y dinamización de comunidades de José"
+  },
+  {
+    "id": "personal",
+    "name": "Personal & Gastos",
+    "icon": "💼",
+    "description": "Contabilidad, recibos, nutrición y agenda personal"
+  }
+]

@@ -3,6 +3,7 @@ const geminiService = require('../services/geminiService');
 const salesforceService = require('../services/salesforceService');
 const metaArchitectService = require('../services/metaArchitectService');
 const stateMachine = require('../state/stateMachine');
+const gitOpsService = require('../services/gitOpsService');
 
 class ChatController {
   // Return list of all tenants registered
@@ -29,10 +30,14 @@ class ChatController {
       // Save to Database
       await tenantDatabaseService.saveTenantConfig(generatedConfig.tenantId, generatedConfig);
 
+      // Trigger automatic GitOps Commit
+      const gitResult = await gitOpsService.commitAgentConfig(generatedConfig.tenantId, generatedConfig.companyName);
+
       return res.json({
         success: true,
         tenantId: generatedConfig.tenantId,
-        config: generatedConfig
+        config: generatedConfig,
+        git: gitResult
       });
     } catch (error) {
       return res.status(500).json({ success: false, error: error.message });
