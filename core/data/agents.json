@@ -199,6 +199,18 @@
         "actions": [
           "organigram_generated"
         ]
+      },
+      {
+        "role": "assistant",
+        "content": "Como **El Chif (CEO)** en mi rol de **Chief Executive Officer** (Dirección General), he analizado tu planteamiento:\n\n> \"hola\"\n\nPara llevar esto a cabo de manera eficiente, cuento con 3 subordinados en mi área. Si deseas que cree nuevos agentes especializados o configure conectores en el Marketplace de Plugins, solo indícamelo y lo estructuraré de inmediato.",
+        "timestamp": "2026-09-22T15:06:41.464Z",
+        "actions": []
+      },
+      {
+        "role": "assistant",
+        "content": "Como **El Chif (CEO)** en mi rol de **Chief Executive Officer** (Dirección General), he analizado tu planteamiento:\n\n> \"haz un nuevo agente que sea el encargado de los costos\"\n\nPara llevar esto a cabo de manera eficiente, cuento con 3 subordinados en mi área. Si deseas que cree nuevos agentes especializados o configure conectores en el Marketplace de Plugins, solo indícamelo y lo estructuraré de inmediato.",
+        "timestamp": "2026-09-22T15:06:59.065Z",
+        "actions": []
       }
     ]
   },

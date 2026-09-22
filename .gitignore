@@ -1,26 +1,133 @@
-# Dependency directories
+# ==============================================================================
+# SECRETS & ENVIRONMENT VARIABLES (STRICT NO-LEAK POLICY)
+# ==============================================================================
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.cert
+secrets/
+credentials/
+id_rsa*
+*.p12
+
+# ==============================================================================
+# PYTHON ARTIFACTS & VIRTUAL ENVS
+# ==============================================================================
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+.venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+
+# Testing & Coverage
+.tox/
+.nox/
+.coverage
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*.cover
+*.py,cover
+.hypothesis/
+.pytest_cache/
+cover/
+
+# Type Checking
+.mypy_cache/
+.dmypy.json
+dmypy.json
+.pyre/
+.pytype/
+
+# ==============================================================================
+# JAVASCRIPT / TYPESCRIPT / NODE
+# ==============================================================================
 node_modules/
 jspm_packages/
 .pnp/
 .pnp.js
-
-# Testing
-coverage/
-
-# Production
-build/
-dist/
-
-# Misc
-.DS_Store
-.env
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
-# Logs
 npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Production Build
+.next/
+out/
+.nuxt/
+dist/
+.cache/
+
+# ==============================================================================
+# SANDBOX & WORKSPACE DIRECTORIES (LOCAL ONLY)
+# ==============================================================================
+/workspace/*
+!/workspace/.gitkeep
+tools/workspace/*
+!tools/workspace/.gitkeep
+backend/workspace/*
+!backend/workspace/.gitkeep
+
+# ==============================================================================
+# PLAYWRIGHT ARTIFACTS
+# ==============================================================================
+test-results/
+playwright-report/
+playwright/.cache/
+screenshots/
+videos/
+traces/
+
+# ==============================================================================
+# OPERATING SYSTEM & IDE ARTIFACTS
+# ==============================================================================
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+desktop.ini
+
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# ==============================================================================
+# DOCKER LOCAL VOLUMES & GEMINI RUNTIME
+# ==============================================================================
+postgres_data/
+redis_data/
 .gemini/
