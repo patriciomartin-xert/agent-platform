@@ -367,11 +367,12 @@
           });
           const data = await res.json();
           if (data.success) {
-            setAiConfig({ hasKey: true, keyMasked: data.keyMasked, provider: 'Google Gemini (Google AI Studio)' });
             if (data.testResult && data.testResult.success) {
-              setAiTestMessage({ type: 'success', text: `✅ Conectado y Verificado: ${data.testResult.message}` });
+              setAiConfig({ hasKey: true, keyMasked: data.keyMasked, provider: 'Google Gemini (Google AI Studio)' });
+              setAiTestMessage({ type: 'success', text: `✅ Conectado y Verificado con éxito: ${data.testResult.message}` });
             } else {
-              setAiTestMessage({ type: 'error', text: `⚠️ Guardado en servidor, pero Google retornó error: ${data.testResult?.error || 'Clave no autorizada'}` });
+              setAiConfig({ hasKey: false, keyMasked: '', provider: 'Google Gemini (Google AI Studio)' });
+              setAiTestMessage({ type: 'error', text: `⚠️ ${data.testResult?.error || 'Clave no válida'}` });
             }
             loadData();
           } else {

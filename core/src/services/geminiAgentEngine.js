@@ -23,15 +23,35 @@ class GeminiAgentEngine {
     if (!apiKey || !apiKey.trim()) {
       return { success: false, error: 'No se proporcionó ninguna API Key.' };
     }
-    try {
-      const client = new GoogleGenerativeAI(apiKey.trim());
-      const model = client.getGenerativeModel({ model: 'gemini-1.5-flash' });
-      const result = await model.generateContent('Responde en una sola palabra: "Conectado"');
-      const text = result.response.text();
-      return { success: true, message: `Conexión exitosa con Google Gemini: ${text.trim()}` };
-    } catch (err) {
-      return { success: false, error: err.message };
+    const cleanKey = apiKey.trim();
+
+    if (!cleanKey.startsWith('AIzaSy')) {
+      return {
+        success: false,
+        error: 'Las claves de Google AI Studio deben comenzar con el prefijo "AIzaSy...". La clave ingresada no pertenece a un proyecto activo de Google AI Studio. Puedes obtener una clave gratuita en https://aistudio.google.com/app/apikey'
+      };
     }
+
+    const candidateModels = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
+    let lastError = null;
+
+    for (const modelName of candidateModels) {
+      try {
+        const client = new GoogleGenerativeAI(cleanKey);
+        const model = client.getGenerativeModel({ model: modelName });
+        const result = await model.generateContent('Responde en una sola palabra: "Conectado"');
+        const text = result.response.text();
+        this.primaryModel = modelName;
+        return { success: true, message: `Conexión exitosa con Google Gemini (${modelName}): ${text.trim()}` };
+      } catch (err) {
+        lastError = err.message;
+      }
+    }
+
+    return {
+      success: false,
+      error: `Error conectando con Google Gemini API: ${lastError || 'Verifica que la clave tenga la API "Generative Language API" activada en tu cuenta de Google.'}`
+    };
   }
 
   async executeAgentTurn({ agent, userMessage, conversationHistory = [] }) {
