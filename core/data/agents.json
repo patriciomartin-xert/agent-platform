@@ -17,13 +17,27 @@
       "title": "Panel Estratégico de Dirección",
       "activeTab": "web"
     },
-    "tools": ["browser", "agent_factory", "delegation", "routine_creator"],
-    "plugins": ["x-twitter", "google-sheets", "github"],
+    "tools": [
+      "browser",
+      "agent_factory",
+      "delegation",
+      "routine_creator"
+    ],
+    "plugins": [
+      "x-twitter",
+      "google-sheets",
+      "github"
+    ],
     "history": [
       {
         "role": "assistant",
         "content": "Bienvenido al espacio de trabajo. Soy tu **Director de Operaciones**. Desde aquí puedes estructurar el organigrama de la empresa, asignar nuevos agentes subordinados o configurar integraciones y plugins externos.",
         "timestamp": "2026-09-22T08:00:00Z"
+      },
+      {
+        "role": "assistant",
+        "content": "Entendido, José. Como **Director de Operaciones** (Coordinador General & Estratega de IA), estoy procesando tu solicitud: \"dile al lider de marketing que hola\". He actualizado mi pantalla de trabajo y estoy listo para continuar coordinando tareas con el equipo.",
+        "timestamp": "2026-09-22T14:59:19.172Z"
       }
     ]
   },
@@ -45,8 +59,13 @@
       "title": "Centro de Tendencias & Redes",
       "activeTab": "twitter"
     },
-    "tools": ["browser", "social_publisher"],
-    "plugins": ["x-twitter"],
+    "tools": [
+      "browser",
+      "social_publisher"
+    ],
+    "plugins": [
+      "x-twitter"
+    ],
     "history": [
       {
         "role": "assistant",
@@ -73,8 +92,14 @@
       "title": "Control Financiero & Facturación.xlsx",
       "activeTab": "sheets"
     },
-    "tools": ["google_sheets", "receipt_ocr", "excel_export"],
-    "plugins": ["google-sheets"],
+    "tools": [
+      "google_sheets",
+      "receipt_ocr",
+      "excel_export"
+    ],
+    "plugins": [
+      "google-sheets"
+    ],
     "history": [
       {
         "role": "assistant",
@@ -101,13 +126,184 @@
       "title": "Portal de Inteligencia de Mercado",
       "activeTab": "web"
     },
-    "tools": ["web_search", "browser"],
-    "plugins": ["x-twitter"],
+    "tools": [
+      "web_search",
+      "browser"
+    ],
+    "plugins": [
+      "x-twitter"
+    ],
     "history": [
       {
         "role": "assistant",
         "content": "Analista de Mercado en línea. Reporto a la Líder de Marketing para proveer datos frescos del sector.",
         "timestamp": "2026-09-22T08:15:00Z"
+      }
+    ]
+  },
+  "el-chif": {
+    "id": "el-chif",
+    "name": "El Chif (CEO)",
+    "role": "Chief Executive Officer",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=el-chif",
+    "avatarEmoji": "🤖",
+    "tags": [
+      "Operativo"
+    ],
+    "isCoordinator": false,
+    "isPinned": false,
+    "channelId": "direccion",
+    "department": "Dirección General",
+    "reportsTo": null,
+    "status": "online",
+    "jobDescription": "Liderar la visión estratégica global y coordinar a los directores de tecnología, marketing y soporte.",
+    "computer": {
+      "currentUrl": "https://dashboard.opalo.ai",
+      "type": "browser",
+      "title": "El chif - Espacio de Trabajo",
+      "activeTab": "browser"
+    },
+    "tools": [
+      "browser",
+      "file_reader"
+    ],
+    "plugins": [],
+    "history": [
+      {
+        "role": "assistant",
+        "content": "Hola. He sido incorporado formalmente al organigrama como **El chif** (CEO). Estoy listo para operar con autonomía en el departamento de **Dirección General**.",
+        "timestamp": "2026-09-22T14:51:25.450Z"
+      },
+      {
+        "role": "assistant",
+        "content": "Entendido, José. Como **El chif** (CEO), estoy procesando tu solicitud: \"Hola pero necesito que te pongas tus reglas y tu logica\". He actualizado mi pantalla de trabajo y estoy listo para continuar coordinando tareas con el equipo.",
+        "timestamp": "2026-09-22T14:51:44.709Z"
+      },
+      {
+        "role": "assistant",
+        "content": "Entendido, José. Como **El chif** (CEO), estoy procesando tu solicitud: \"como estas?\". He actualizado mi pantalla de trabajo y estoy listo para continuar coordinando tareas con el equipo.",
+        "timestamp": "2026-09-22T14:52:06.144Z"
+      },
+      {
+        "role": "assistant",
+        "content": "He asimilado e incorporado mis reglas operativas y lógica de decisión como **El chif** (CEO).\n\n🎯 **Nueva Misión / Lógica Fijada**:\n\"Reglas operativas de El chif: Responder con máxima proactividad, pensamiento estratégico de CEO, autonomía en toma de decisiones y coordinación directa con la dirección. Instrucción del usuario: \"Hola pero necesito que te pongas tus reglas y tu logica\".\"\n\nEstoy operando bajo estos parámetros. ¿Qué objetivo o área de la empresa deseas que auditemos o desarrollemos a continuación?",
+        "timestamp": "2026-09-22T15:05:09.798Z",
+        "actions": [
+          "rules_updated"
+        ]
+      },
+      {
+        "role": "assistant",
+        "content": "He diseñado y desplegado la estructura del organigrama en la plataforma reportando a mi supervisión en **Dirección General**:\n\n• 🏢 **Elena Rivas** (Chief Technology Officer (CTO))\n  Departamento: *Tecnología & Desarrollo*\n  Misión: Arquitectura de software, infraestructura cloud y despliegues continuos.\n\n• 🏢 **Marcos Soler** (Head of Growth & Acquisition)\n  Departamento: *Marketing & Crecimiento*\n  Misión: Estrategias de adquisición de usuarios B2B, embudos de conversión y analítica.\n\n• 🏢 **Valeria Castro** (Lead Customer Success Specialist)\n  Departamento: *Soporte & Clientes*\n  Misión: Retención de cuentas, onboarding de clientes y resolución de tickets críticos.\n\n📌 **Acción realizada en el sistema**: Todos los nodos han sido vinculados al organigrama interactivo. Puedes ver las conexiones jerárquicas en la pestaña **Organigrama** o delegarles tareas desde sus respectivos chats.",
+        "timestamp": "2026-09-22T15:05:18.470Z",
+        "actions": [
+          "organigram_generated"
+        ]
+      }
+    ]
+  },
+  "elena-rivas": {
+    "id": "elena-rivas",
+    "name": "Elena Rivas",
+    "role": "Chief Technology Officer (CTO)",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=elena-rivas",
+    "avatarEmoji": "💻",
+    "tags": [
+      "Operativo"
+    ],
+    "isCoordinator": false,
+    "isPinned": false,
+    "channelId": "direccion",
+    "department": "Tecnología & Desarrollo",
+    "reportsTo": "el-chif",
+    "status": "online",
+    "jobDescription": "Arquitectura de software, infraestructura cloud y despliegues continuos.",
+    "computer": {
+      "currentUrl": "https://dashboard.opalo.ai",
+      "type": "browser",
+      "title": "Elena Rivas - Espacio de Trabajo",
+      "activeTab": "web"
+    },
+    "tools": [
+      "browser",
+      "file_reader"
+    ],
+    "plugins": [],
+    "history": [
+      {
+        "role": "assistant",
+        "content": "Hola. He sido incorporado formalmente al organigrama como **Elena Rivas** (Chief Technology Officer (CTO)). Estoy listo para operar con autonomía en el departamento de **Tecnología & Desarrollo**.",
+        "timestamp": "2026-09-22T15:05:18.467Z"
+      }
+    ]
+  },
+  "marcos-soler": {
+    "id": "marcos-soler",
+    "name": "Marcos Soler",
+    "role": "Head of Growth & Acquisition",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=marcos-soler",
+    "avatarEmoji": "📈",
+    "tags": [
+      "Operativo"
+    ],
+    "isCoordinator": false,
+    "isPinned": false,
+    "channelId": "direccion",
+    "department": "Marketing & Crecimiento",
+    "reportsTo": "el-chif",
+    "status": "online",
+    "jobDescription": "Estrategias de adquisición de usuarios B2B, embudos de conversión y analítica.",
+    "computer": {
+      "currentUrl": "https://dashboard.opalo.ai",
+      "type": "browser",
+      "title": "Marcos Soler - Espacio de Trabajo",
+      "activeTab": "web"
+    },
+    "tools": [
+      "browser",
+      "file_reader"
+    ],
+    "plugins": [],
+    "history": [
+      {
+        "role": "assistant",
+        "content": "Hola. He sido incorporado formalmente al organigrama como **Marcos Soler** (Head of Growth & Acquisition). Estoy listo para operar con autonomía en el departamento de **Marketing & Crecimiento**.",
+        "timestamp": "2026-09-22T15:05:18.468Z"
+      }
+    ]
+  },
+  "valeria-castro": {
+    "id": "valeria-castro",
+    "name": "Valeria Castro",
+    "role": "Lead Customer Success Specialist",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=valeria-castro",
+    "avatarEmoji": "🤝",
+    "tags": [
+      "Operativo"
+    ],
+    "isCoordinator": false,
+    "isPinned": false,
+    "channelId": "direccion",
+    "department": "Soporte & Clientes",
+    "reportsTo": "el-chif",
+    "status": "online",
+    "jobDescription": "Retención de cuentas, onboarding de clientes y resolución de tickets críticos.",
+    "computer": {
+      "currentUrl": "https://dashboard.opalo.ai",
+      "type": "browser",
+      "title": "Valeria Castro - Espacio de Trabajo",
+      "activeTab": "web"
+    },
+    "tools": [
+      "browser",
+      "file_reader"
+    ],
+    "plugins": [],
+    "history": [
+      {
+        "role": "assistant",
+        "content": "Hola. He sido incorporado formalmente al organigrama como **Valeria Castro** (Lead Customer Success Specialist). Estoy listo para operar con autonomía en el departamento de **Soporte & Clientes**.",
+        "timestamp": "2026-09-22T15:05:18.469Z"
       }
     ]
   }

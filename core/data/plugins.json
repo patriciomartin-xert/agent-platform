@@ -11,7 +11,9 @@
       "apiKey": "xai_live_892348123******",
       "environment": "production"
     },
-    "assignedAgents": ["agente-director"]
+    "assignedAgents": [
+      "agente-director"
+    ]
   },
   {
     "id": "google-sheets",
@@ -25,7 +27,9 @@
       "serviceAccount": "opalo-sheets-sa@opalo-cloud.iam.gserviceaccount.com",
       "defaultSheetId": "1g92kL82kjasd0923_gastos"
     },
-    "assignedAgents": ["agente-director"]
+    "assignedAgents": [
+      "agente-director"
+    ]
   },
   {
     "id": "telegram",
@@ -80,7 +84,9 @@
       "repository": "patriciomartin-xert/agent-platform",
       "branch": "main"
     },
-    "assignedAgents": ["agente-director"]
+    "assignedAgents": [
+      "agente-director"
+    ]
   },
   {
     "id": "custom-webhook",

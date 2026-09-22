@@ -65,6 +65,25 @@
       // Workspace Right Tab: 'computer' | 'routines' | 'plugins' | 'settings'
       const [rightTab, setRightTab] = useState('computer');
 
+      // AI Engine & API Key status
+      const [aiConfig, setAiConfig] = useState({ hasKey: false, keyMasked: '', provider: 'Google Gemini' });
+      const [showAiModal, setShowAiModal] = useState(false);
+      const [aiKeyInput, setAiKeyInput] = useState('');
+      const [aiTesting, setAiTesting] = useState(false);
+      const [aiTestMessage, setAiTestMessage] = useState(null);
+
+      // Edit Agent Form (Settings Tab)
+      const [editAgentForm, setEditAgentForm] = useState({
+        name: '',
+        role: '',
+        department: 'Dirección General',
+        reportsTo: 'none',
+        jobDescription: '',
+        computerUrl: ''
+      });
+      const [isSavingAgent, setIsSavingAgent] = useState(false);
+      const [saveSuccessMsg, setSaveSuccessMsg] = useState('');
+
       // Chat input & voice recording
       const [chatInput, setChatInput] = useState('');
       const [isRecording, setIsRecording] = useState(false);
@@ -105,26 +124,37 @@
         }
       }, [agents, selectedAgentId]);
 
-      // Sync active agent browser URL
+      // Sync active agent browser URL and edit form
       useEffect(() => {
         const ag = agents[selectedAgentId];
-        if (ag && ag.computer) {
-          setBrowserUrl(ag.computer.currentUrl || 'https://dashboard.opalo.ai');
+        if (ag) {
+          if (ag.computer) {
+            setBrowserUrl(ag.computer.currentUrl || 'https://dashboard.opalo.ai');
+          }
+          setEditAgentForm({
+            name: ag.name || '',
+            role: ag.role || '',
+            department: ag.department || 'Dirección General',
+            reportsTo: ag.reportsTo || 'none',
+            jobDescription: ag.jobDescription || '',
+            computerUrl: ag.computer?.currentUrl || 'https://dashboard.opalo.ai'
+          });
         }
       }, [selectedAgentId, agents]);
 
       const loadData = async () => {
         try {
-          const [agRes, chRes, plRes, roRes, exRes, loRes] = await Promise.all([
+          const [agRes, chRes, plRes, roRes, exRes, loRes, aiRes] = await Promise.all([
             fetch('/api/grok/agents').then(r => r.json()),
             fetch('/api/grok/channels').then(r => r.json()),
             fetch('/api/grok/plugins').then(r => r.json()),
             fetch('/api/grok/routines').then(r => r.json()),
             fetch('/api/grok/expenses').then(r => r.json()),
-            fetch('/api/grok/inter-agent-logs').then(r => r.json())
+            fetch('/api/grok/inter-agent-logs').then(r => r.json()),
+            fetch('/api/grok/config/ai').then(r => r.json()).catch(() => ({ success: false }))
           ]);
 
-          if (agRes.success) {
+          if (agRes && agRes.success) {
             const map = {};
             agRes.agents.forEach(a => { map[a.id] = a; });
             setAgents(map);
@@ -133,11 +163,12 @@
               setSelectedAgentId(root.id);
             }
           }
-          if (chRes.success) setChannels(chRes.channels);
-          if (plRes.success) setPlugins(plRes.plugins);
-          if (roRes.success) setRoutines(roRes.routines);
-          if (exRes.success) setExpenses(exRes.expenses);
-          if (loRes.success) setInterAgentLogs(loRes.logs);
+          if (chRes && chRes.success) setChannels(chRes.channels);
+          if (plRes && plRes.success) setPlugins(plRes.plugins);
+          if (roRes && roRes.success) setRoutines(roRes.routines);
+          if (exRes && exRes.success) setExpenses(exRes.expenses);
+          if (loRes && loRes.success) setInterAgentLogs(loRes.logs);
+          if (aiRes && aiRes.success) setAiConfig(aiRes);
         } catch (e) {
           console.error('[Error fetching data]:', e);
         }
@@ -288,6 +319,71 @@
         }
       };
 
+      // Save Agent Settings from Right Tab
+      const handleSaveAgentSettings = async (e) => {
+        if (e) e.preventDefault();
+        if (!selectedAgentId) return;
+        setIsSavingAgent(true);
+        try {
+          const payload = {
+            name: editAgentForm.name,
+            role: editAgentForm.role,
+            department: editAgentForm.department,
+            reportsTo: editAgentForm.reportsTo === 'none' ? null : editAgentForm.reportsTo,
+            jobDescription: editAgentForm.jobDescription,
+            computer: {
+              ...(agents[selectedAgentId]?.computer || {}),
+              currentUrl: editAgentForm.computerUrl
+            }
+          };
+          const res = await fetch(`/api/grok/agents/${selectedAgentId}`, {
+            method: 'PATCH',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify(payload)
+          });
+          const data = await res.json();
+          if (data.success) {
+            setSaveSuccessMsg('✅ ¡Ajustes guardados con éxito!');
+            setTimeout(() => setSaveSuccessMsg(''), 3500);
+            loadData();
+          }
+        } catch (err) {
+          console.error(err);
+        } finally {
+          setIsSavingAgent(false);
+        }
+      };
+
+      // Save & Test AI Configuration
+      const handleSaveAiConfig = async () => {
+        if (!aiKeyInput.trim()) return;
+        setAiTesting(true);
+        setAiTestMessage(null);
+        try {
+          const res = await fetch('/api/grok/config/ai', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ apiKey: aiKeyInput.trim() })
+          });
+          const data = await res.json();
+          if (data.success) {
+            setAiConfig({ hasKey: true, keyMasked: data.keyMasked, provider: 'Google Gemini (Google AI Studio)' });
+            if (data.testResult && data.testResult.success) {
+              setAiTestMessage({ type: 'success', text: `✅ Conectado y Verificado: ${data.testResult.message}` });
+            } else {
+              setAiTestMessage({ type: 'error', text: `⚠️ Guardado en servidor, pero Google retornó error: ${data.testResult?.error || 'Clave no autorizada'}` });
+            }
+            loadData();
+          } else {
+            setAiTestMessage({ type: 'error', text: data.error || 'Error al guardar la clave' });
+          }
+        } catch (err) {
+          setAiTestMessage({ type: 'error', text: err.message });
+        } finally {
+          setAiTesting(false);
+        }
+      };
+
       // Change agent's supervisor in organigram
       const handleUpdateHierarchy = async (agentId, newReportsTo) => {
         try {
@@ -410,8 +506,25 @@
               </nav>
             </div>
 
-            {/* Top Right Action: Crear Agente */}
+            {/* Top Right Action: Conexión IA y Crear Agente */}
             <div className="flex items-center space-x-3">
+              <button
+                onClick={() => {
+                  setAiTestMessage(null);
+                  setShowAiModal(true);
+                }}
+                className={`flex items-center space-x-2 px-3 py-1.5 rounded-xl text-xs font-mono border transition-all ${
+                  aiConfig.hasKey
+                    ? 'bg-emerald-950/40 text-emerald-300 border-emerald-500/40 hover:bg-emerald-900/50'
+                    : 'bg-amber-950/40 text-amber-300 border-amber-500/40 hover:bg-amber-900/50 animate-pulse'
+                }`}
+                title="Configurar conexión con Google Gemini AI"
+              >
+                <span className={`w-2 h-2 rounded-full ${aiConfig.hasKey ? 'bg-emerald-400' : 'bg-amber-400'}`}></span>
+                <span>{aiConfig.hasKey ? 'Gemini AI Conectado' : '⚡ Conectar Gemini Key'}</span>
+                <span className="text-[10px] opacity-70">⚙️</span>
+              </button>
+
               <button
                 onClick={() => {
                   setNewAgentParentId('none');
@@ -582,6 +695,32 @@
 
                     {/* Chat Input */}
                     <div className="p-4 bg-[#0d131f] border-t border-slate-800/80 shrink-0">
+                      {/* Quick Action Suggestion Chips */}
+                      <div className="mb-2.5 flex flex-wrap gap-1.5 items-center">
+                        <span className="text-[10px] text-slate-500 font-mono">💡 Sugerencias:</span>
+                        <button
+                          type="button"
+                          onClick={() => handleSendMessage("Genera los agentes y el organigrama para una empresa de software B2B")}
+                          className="text-[10px] bg-slate-850 hover:bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1 rounded-lg border border-slate-800 transition-all"
+                        >
+                          🏢 Organigrama Software B2B
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSendMessage("Genera los agentes y el organigrama para una tienda de Ecommerce y ventas")}
+                          className="text-[10px] bg-slate-850 hover:bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1 rounded-lg border border-slate-800 transition-all"
+                        >
+                          📦 Organigrama Ecommerce
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleSendMessage(`Establece tus reglas, rol de ${activeAgent.role} y tu lógica operativa`)}
+                          className="text-[10px] bg-slate-850 hover:bg-slate-800 text-slate-300 hover:text-white px-2.5 py-1 rounded-lg border border-slate-800 transition-all"
+                        >
+                          ⚙️ Fijar Reglas & Lógica
+                        </button>
+                      </div>
+
                       <form
                         onSubmit={(e) => { e.preventDefault(); handleSendMessage(); }}
                         className="bg-[#121927] border border-slate-800 rounded-2xl p-2 flex items-center space-x-2 focus-within:border-indigo-500 transition-all shadow-inner"
@@ -727,22 +866,53 @@
 
                   {/* Right Tab 3: Settings */}
                   {rightTab === 'settings' && activeAgent && (
-                    <div className="space-y-4 text-xs">
+                    <form onSubmit={handleSaveAgentSettings} className="space-y-3.5 text-xs">
+                      {saveSuccessMsg && (
+                        <div className="p-2.5 rounded-xl bg-emerald-950/60 border border-emerald-500/40 text-emerald-300 font-mono text-[11px] flex items-center space-x-2">
+                          <span>✓</span>
+                          <span>{saveSuccessMsg}</span>
+                        </div>
+                      )}
+
                       <div>
-                        <label className="text-[10px] font-mono uppercase text-slate-400">Nombre</label>
+                        <label className="text-[10px] font-mono uppercase text-slate-400">Nombre del Agente</label>
                         <input
                           type="text"
-                          defaultValue={activeAgent.name}
-                          className="w-full bg-[#121927] border border-slate-800 rounded-xl p-2.5 mt-1 text-slate-200 font-bold focus:outline-none"
+                          required
+                          value={editAgentForm.name}
+                          onChange={(e) => setEditAgentForm({ ...editAgentForm, name: e.target.value })}
+                          className="w-full bg-[#121927] border border-slate-800 rounded-xl p-2.5 mt-1 text-slate-100 font-bold focus:outline-none focus:border-indigo-500"
                         />
                       </div>
 
+                      <div className="grid grid-cols-2 gap-2.5">
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-slate-400">Cargo / Rol</label>
+                          <input
+                            type="text"
+                            required
+                            value={editAgentForm.role}
+                            onChange={(e) => setEditAgentForm({ ...editAgentForm, role: e.target.value })}
+                            className="w-full bg-[#121927] border border-slate-800 rounded-xl p-2.5 mt-1 text-slate-200 focus:outline-none focus:border-indigo-500"
+                          />
+                        </div>
+                        <div>
+                          <label className="text-[10px] font-mono uppercase text-slate-400">Departamento</label>
+                          <input
+                            type="text"
+                            value={editAgentForm.department}
+                            onChange={(e) => setEditAgentForm({ ...editAgentForm, department: e.target.value })}
+                            className="w-full bg-[#121927] border border-slate-800 rounded-xl p-2.5 mt-1 text-slate-200 focus:outline-none focus:border-indigo-500 font-mono text-[11px]"
+                          />
+                        </div>
+                      </div>
+
                       <div>
-                        <label className="text-[10px] font-mono uppercase text-slate-400">Reporta a (Jerarquía)</label>
+                        <label className="text-[10px] font-mono uppercase text-slate-400">Reporta a (Jerarquía en Organigrama)</label>
                         <select
-                          value={activeAgent.reportsTo || 'none'}
-                          onChange={(e) => handleUpdateHierarchy(activeAgent.id, e.target.value)}
-                          className="w-full bg-[#121927] border border-slate-800 rounded-xl p-2.5 mt-1 text-slate-200 focus:outline-none font-mono text-xs"
+                          value={editAgentForm.reportsTo}
+                          onChange={(e) => setEditAgentForm({ ...editAgentForm, reportsTo: e.target.value })}
+                          className="w-full bg-[#121927] border border-slate-800 rounded-xl p-2.5 mt-1 text-slate-200 focus:outline-none focus:border-indigo-500 font-mono text-xs"
                         >
                           <option value="none">Sin superior (Dirección General / Raíz)</option>
                           {agentList.filter(a => a.id !== activeAgent.id).map(a => (
@@ -752,23 +922,55 @@
                       </div>
 
                       <div>
-                        <label className="text-[10px] font-mono uppercase text-slate-400">Job Description / Misión</label>
+                        <label className="text-[10px] font-mono uppercase text-slate-400">Job Description / Misión & Reglas</label>
                         <textarea
                           rows="4"
-                          defaultValue={activeAgent.jobDescription}
-                          className="w-full bg-[#121927] border border-slate-800 rounded-xl p-2.5 mt-1 text-slate-200 focus:outline-none text-[11px] resize-none"
+                          required
+                          value={editAgentForm.jobDescription}
+                          onChange={(e) => setEditAgentForm({ ...editAgentForm, jobDescription: e.target.value })}
+                          className="w-full bg-[#121927] border border-slate-800 rounded-xl p-2.5 mt-1 text-slate-200 focus:outline-none focus:border-indigo-500 text-[11px] leading-relaxed resize-none"
+                          placeholder="Define qué tareas ejecutará, sus límites y su lógica de operación..."
                         />
                       </div>
 
+                      <div>
+                        <label className="text-[10px] font-mono uppercase text-slate-400">URL del Espacio de Trabajo</label>
+                        <input
+                          type="text"
+                          value={editAgentForm.computerUrl}
+                          onChange={(e) => setEditAgentForm({ ...editAgentForm, computerUrl: e.target.value })}
+                          className="w-full bg-[#121927] border border-slate-800 rounded-xl p-2 mt-1 text-slate-300 focus:outline-none focus:border-indigo-500 font-mono text-[11px]"
+                        />
+                      </div>
+
+                      <button
+                        type="submit"
+                        disabled={isSavingAgent}
+                        className="w-full bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 text-white font-bold p-2.5 rounded-xl text-xs font-mono shadow-md transition-all flex items-center justify-center space-x-2"
+                      >
+                        {isSavingAgent ? (
+                          <>
+                            <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                            <span>Guardando...</span>
+                          </>
+                        ) : (
+                          <>
+                            <span>💾</span>
+                            <span>Guardar Cambios del Agente</span>
+                          </>
+                        )}
+                      </button>
+
                       <div className="pt-2 border-t border-slate-800">
                         <button
+                          type="button"
                           onClick={() => handleDeleteAgent(activeAgent.id)}
-                          className="w-full bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/40 p-2 rounded-xl text-xs font-mono font-bold transition-all"
+                          className="w-full bg-rose-600/10 hover:bg-rose-600/20 text-rose-300 border border-rose-500/30 p-2 rounded-xl text-xs font-mono font-bold transition-all"
                         >
                           Eliminar Agente del Organigrama
                         </button>
                       </div>
-                    </div>
+                    </form>
                   )}
                 </div>
               </aside>
@@ -1117,6 +1319,109 @@
                     </button>
                   </div>
                 </form>
+              </div>
+            </div>
+          )}
+
+          {/* MODAL: CONFIGURACIÓN DE INTELIGENCIA ARTIFICIAL (GEMINI API KEY) */}
+          {showAiModal && (
+            <div className="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm flex items-center justify-center p-4">
+              <div className="bg-[#0f172a] border border-slate-800 w-full max-w-lg rounded-2xl p-6 shadow-2xl relative">
+                <div className="flex justify-between items-center mb-4 pb-3 border-b border-slate-800">
+                  <div className="flex items-center space-x-2.5">
+                    <span className="text-xl">✨</span>
+                    <h3 className="text-sm font-bold text-white">Conexión con Inteligencia Artificial (Google Gemini)</h3>
+                  </div>
+                  <button
+                    onClick={() => { setShowAiModal(false); setAiTestMessage(null); }}
+                    className="text-slate-400 hover:text-white text-lg font-mono font-bold"
+                  >
+                    ✕
+                  </button>
+                </div>
+
+                <div className="space-y-4 text-xs">
+                  <p className="text-slate-300 leading-relaxed">
+                    Conecta tu API Key de Google Gemini para que todos los agentes razonen con autonomía, recuerden el contexto y generen organigramas dinámicamente.
+                  </p>
+
+                  <div className="p-3.5 rounded-xl bg-indigo-950/40 border border-indigo-500/30 text-indigo-200 text-[11px] space-y-1.5 leading-relaxed">
+                    <div className="font-bold flex items-center space-x-1.5 text-indigo-300">
+                      <span>🔑</span>
+                      <span>¿Cómo obtener tu clave gratuita de Google?</span>
+                    </div>
+                    <div>
+                      1. Entra a Google AI Studio:
+                      <a
+                        href="https://aistudio.google.com/app/apikey"
+                        target="_blank"
+                        rel="noreferrer"
+                        className="text-cyan-400 underline font-mono ml-1 hover:text-cyan-300 font-bold"
+                      >
+                        aistudio.google.com/app/apikey ↗
+                      </a>
+                    </div>
+                    <div>2. Haz clic en <strong>"Create API Key"</strong> y copia el código generado.</div>
+                    <div className="text-[10px] text-amber-300/90 font-mono pt-1 border-t border-indigo-500/20">
+                      ⚠️ Las claves válidas de Google AI Studio inician siempre con <strong>AIzaSy...</strong>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="text-[10px] font-mono uppercase text-slate-400 block mb-1.5">
+                      Estado actual: {aiConfig.hasKey ? (
+                        <span className="text-emerald-400 font-mono font-bold">🟢 Conectado ({aiConfig.keyMasked})</span>
+                      ) : (
+                        <span className="text-amber-400 font-mono font-bold">🟡 Clave no configurada (usando motor inteligente de contingencia)</span>
+                      )}
+                    </label>
+                    <input
+                      type="password"
+                      placeholder="Pega tu clave AIzaSy..."
+                      value={aiKeyInput}
+                      onChange={(e) => setAiKeyInput(e.target.value)}
+                      className="w-full bg-[#121927] border border-slate-800 rounded-xl p-3 text-slate-100 font-mono text-xs focus:outline-none focus:border-indigo-500"
+                    />
+                  </div>
+
+                  {aiTestMessage && (
+                    <div className={`p-3 rounded-xl text-xs font-mono leading-relaxed ${
+                      aiTestMessage.type === 'success'
+                        ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-300'
+                        : 'bg-rose-950/60 border border-rose-500/40 text-rose-300'
+                    }`}>
+                      {aiTestMessage.text}
+                    </div>
+                  )}
+
+                  <div className="pt-3 border-t border-slate-800 flex justify-end space-x-2">
+                    <button
+                      type="button"
+                      onClick={() => { setShowAiModal(false); setAiTestMessage(null); }}
+                      className="px-4 py-2 rounded-xl text-slate-400 hover:text-white font-mono text-xs"
+                    >
+                      Cerrar
+                    </button>
+                    <button
+                      type="button"
+                      onClick={handleSaveAiConfig}
+                      disabled={aiTesting || !aiKeyInput.trim()}
+                      className="px-5 py-2 rounded-xl bg-indigo-600 hover:bg-indigo-500 disabled:bg-slate-800 disabled:text-slate-500 text-white font-bold text-xs font-mono shadow flex items-center space-x-2"
+                    >
+                      {aiTesting ? (
+                        <>
+                          <span className="w-3 h-3 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+                          <span>Verificando con Gemini...</span>
+                        </>
+                      ) : (
+                        <>
+                          <span>🧪</span>
+                          <span>Guardar y Probar Conexión</span>
+                        </>
+                      )}
+                    </button>
+                  </div>
+                </div>
               </div>
             </div>
           )}

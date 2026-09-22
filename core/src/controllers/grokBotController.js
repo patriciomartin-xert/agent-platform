@@ -177,6 +177,70 @@ class GrokBotController {
       return res.status(500).json({ success: false, error: err.message });
     }
   }
+  // Get AI configuration status
+  async getAiConfig(req, res) {
+    try {
+      const key = process.env.GEMINI_API_KEY || '';
+      const hasKey = key.trim().length > 0;
+      const keyMasked = hasKey ? `${key.substring(0, 6)}...${key.substring(key.length - 4)}` : '';
+      return res.json({
+        success: true,
+        hasKey,
+        keyMasked,
+        provider: 'Google Gemini (Google AI Studio)'
+      });
+    } catch (err) {
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  // Update AI configuration (saves to .env and runtime)
+  async updateAiConfig(req, res) {
+    try {
+      const { apiKey } = req.body;
+      if (!apiKey || !apiKey.trim()) {
+        return res.status(400).json({ success: false, error: 'La API Key no puede estar vacía' });
+      }
+
+      const cleanKey = apiKey.trim();
+      process.env.GEMINI_API_KEY = cleanKey;
+
+      const fs = require('fs');
+      const path = require('path');
+      const envContent = `PORT=3000\nGEMINI_API_KEY=${cleanKey}\n`;
+
+      const coreEnvPath = path.join(__dirname, '../../../core/.env');
+      const rootEnvPath = path.join(__dirname, '../../../../.env');
+
+      try { fs.writeFileSync(coreEnvPath, envContent, 'utf-8'); } catch (e) {}
+      try { fs.writeFileSync(rootEnvPath, envContent, 'utf-8'); } catch (e) {}
+
+      // Test connection immediately
+      const geminiAgentEngine = require('../services/geminiAgentEngine');
+      const testResult = await geminiAgentEngine.testConnection(cleanKey);
+
+      return res.json({
+        success: true,
+        saved: true,
+        testResult,
+        keyMasked: `${cleanKey.substring(0, 6)}...${cleanKey.substring(cleanKey.length - 4)}`
+      });
+    } catch (err) {
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  }
+
+  // Test AI Connection
+  async testAiConnection(req, res) {
+    try {
+      const geminiAgentEngine = require('../services/geminiAgentEngine');
+      const key = req.body.apiKey || process.env.GEMINI_API_KEY;
+      const testResult = await geminiAgentEngine.testConnection(key);
+      return res.json(testResult);
+    } catch (err) {
+      return res.status(500).json({ success: false, error: err.message });
+    }
+  }
 }
 
 module.exports = new GrokBotController();

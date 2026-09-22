@@ -30,7 +30,9 @@ app.post('/api/meta/consult', (req, res) => chatController.runConsultingProcess(
 app.get('/api/grok/agents', (req, res) => grokBotController.getAgents(req, res));
 app.post('/api/grok/agents', (req, res) => grokBotController.createAgent(req, res));
 app.patch('/api/grok/agents/:id', (req, res) => grokBotController.updateAgent(req, res));
+app.post('/api/grok/agents/:id', (req, res) => grokBotController.updateAgent(req, res));
 app.patch('/api/grok/agents/:id/hierarchy', (req, res) => grokBotController.updateHierarchy(req, res));
+app.post('/api/grok/agents/:id/hierarchy', (req, res) => grokBotController.updateHierarchy(req, res));
 app.post('/api/grok/agents/:id/toggle-plugin', (req, res) => grokBotController.toggleAgentPlugin(req, res));
 app.delete('/api/grok/agents/:id', (req, res) => grokBotController.deleteAgent(req, res));
 
@@ -47,6 +49,11 @@ app.post('/api/grok/routines/:id/run', (req, res) => grokBotController.executeRo
 app.get('/api/grok/inter-agent-logs', (req, res) => grokBotController.getInterAgentLogs(req, res));
 app.get('/api/grok/expenses', (req, res) => grokBotController.getExpenses(req, res));
 app.post('/api/grok/chat', (req, res) => grokBotController.handleChat(req, res));
+
+// AI Engine Configuration & Test routes
+app.get('/api/grok/config/ai', (req, res) => grokBotController.getAiConfig(req, res));
+app.post('/api/grok/config/ai', (req, res) => grokBotController.updateAiConfig(req, res));
+app.post('/api/grok/config/ai/test', (req, res) => grokBotController.testAiConnection(req, res));
 
 // Health check endpoint
 app.get('/health', (req, res) => {
