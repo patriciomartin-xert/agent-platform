@@ -1,365 +1,94 @@
 {
-  "agente-director": {
-    "id": "agente-director",
-    "name": "Director de Operaciones",
-    "role": "Coordinador General & Estratega de IA",
-    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=director-ops",
-    "avatarEmoji": "👔",
-    "channelId": "direccion",
-    "department": "Dirección General",
-    "reportsTo": null,
+  "asistente-general": {
+    "id": "asistente-general",
+    "name": "Asistente General",
+    "role": "Coordinación, Planificación y Tareas Diarias",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=asistente-general",
+    "avatarEmoji": "🤖",
+    "department": "Operaciones",
     "status": "online",
     "isCoordinator": true,
-    "jobDescription": "Eres el Coordinador General y Director de Operaciones del equipo de agentes de la empresa. Tu responsabilidad es orquestar la delegación entre departamentos, supervisar el cumplimiento de objetivos estratégicos y reportar el estado global al fundador.",
-    "computer": {
-      "currentUrl": "https://dashboard.opalo.ai",
-      "type": "browser",
-      "title": "Panel Estratégico de Dirección",
-      "activeTab": "web"
-    },
+    "jobDescription": "Eres un asistente de inteligencia artificial altamente capacitado, proactivo y conciso. Ayudas a estructurar proyectos, resolver problemas, organizar información y coordinar trabajo con claridad profesional.",
     "tools": [
       "browser",
-      "agent_factory",
-      "delegation",
-      "routine_creator"
-    ],
-    "plugins": [
-      "x-twitter",
-      "google-sheets",
-      "github"
+      "code_executor"
     ],
     "history": [
       {
         "role": "assistant",
-        "content": "Bienvenido al espacio de trabajo. Soy tu **Director de Operaciones**. Desde aquí puedes estructurar el organigrama de la empresa, asignar nuevos agentes subordinados o configurar integraciones y plugins externos.",
-        "timestamp": "2026-09-22T08:00:00Z"
+        "content": "¡Hola! Soy tu **Asistente General**. Estoy conectado con inteligencia de última generación y listo para ayudarte a planificar, redactar, investigar o resolver cualquier tarea. ¿En qué trabajamos hoy?",
+        "timestamp": "2026-09-24T12:00:00Z"
       },
       {
         "role": "assistant",
-        "content": "Entendido, José. Como **Director de Operaciones** (Coordinador General & Estratega de IA), estoy procesando tu solicitud: \"dile al lider de marketing que hola\". He actualizado mi pantalla de trabajo y estoy listo para continuar coordinando tareas con el equipo.",
-        "timestamp": "2026-09-22T14:59:19.172Z"
-      },
-      {
-        "role": "assistant",
-        "content": "Hola, José. Saludos cordiales.\n\nComo Director de Operaciones, me encuentro supervisando la alineación estratégica del equipo y el flujo de trabajo entre nuestros departamentos. Tengo a disposición el seguimiento de las áreas de Marketing y Finanzas, listo para ejecutar nuevas directivas o coordinar proyectos.\n\n¿En qué prioridad operativa o ajuste estratégico nos enfocaremos hoy?",
-        "timestamp": "2026-09-22T15:58:17.754Z",
-        "actions": []
-      },
-      {
-        "role": "assistant",
-        "content": "Sí, absolutamente. Como **Director de Operaciones & Estratega de IA**, tengo la capacidad operativa para diseñar, estructurar e instanciar nuevos agentes especializados dentro de Ópalo OS.\n\nPuedo dimensionar y ampliar nuestro organigrama según las necesidades del negocio, definiendo:\n* **Roles estratégicos y perfiles clave.**\n* **Departamentos** (Atención al Cliente, Ventas, Producto, Operaciones, etc.).\n* **Jerarquías de reporte y flujos de delegación.**\n* **Descripciones de puesto (*Job Descriptions*) y objetivos tácticos.**\n\n¿Qué área, cuello de botella o función operativa necesitas reforzar en este momento? Indícame el enfoque y procederé a generar e incorporar los agentes correspondientes de inmediato.",
-        "timestamp": "2026-09-22T15:58:36.728Z",
-        "actions": []
-      },
-      {
-        "role": "assistant",
-        "content": "Hola. Soy tu **Director de Operaciones**, desempeñando las funciones de **Coordinador General & Estratega de IA** en Dirección General dentro de Ópalo OS.\n\nMis capacidades y responsabilidades clave comprenden:\n\n1. **Orquestación y Delegación Operativa:** Coordino y superviso el trabajo interdepartamental, gestionando directamente a tus agentes subordinados (*Líder de Marketing* y *Administrador de Finanzas*) para asegurar que las directivas se ejecuten sin fricción.\n2. **Diseño y Expansión del Organigrama:** Tengo la facultad de estructurar e instanciar nuevos agentes especializados de IA cuando la operación lo requiera, definiendo sus funciones, jerarquías y objetivos tácticos.\n3. **Supervisión Estratégica y Reporte Ejecutivo:** Consolido el rendimiento global de las operaciones, controlo el cumplimiento de hitos y te presento diagnósticos claros para la toma de decisiones.\n4. **Ejecución Técnica e Integraciones:** Cuento con acceso y capacidad de gestión sobre herramientas operativas clave como **Google Sheets**, **GitHub** y **X (Twitter)**.\n\n¿Cuál es la prioridad u objetivo en el que nos enfocamos ahora?",
-        "timestamp": "2026-09-24T19:59:52.418Z",
+        "content": "Coordino la planificación operativa, estructuro proyectos y resuelvo tareas diarias complejas con apoyo de investigación web.\nAdemás, gestiono la información estratégica y puedo diseñar e integrar nuevos agentes para escalar el organigrama de la empresa.",
+        "timestamp": "2026-09-24T20:49:18.498Z",
         "actions": []
       }
     ]
   },
-  "agente-marketing": {
-    "id": "agente-marketing",
-    "name": "Líder de Marketing",
-    "role": "Responsable de Crecimiento & Contenido",
-    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=marketing-lead",
-    "avatarEmoji": "🚀",
-    "channelId": "marketing",
-    "department": "Marketing & Crecimiento",
-    "reportsTo": "agente-director",
+  "redactor-contenido": {
+    "id": "redactor-contenido",
+    "name": "Redactor & Copywriter",
+    "role": "Especialista en Contenidos y Comunicación",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=redactor-contenido",
+    "avatarEmoji": "✍️",
+    "department": "Marketing",
     "status": "online",
     "isCoordinator": false,
-    "jobDescription": "Lideras la estrategia de marketing, difusión en redes sociales, posicionamiento de marca y generación de contenidos de alto impacto.",
-    "computer": {
-      "currentUrl": "https://x.com/trends",
-      "type": "twitter",
-      "title": "Centro de Tendencias & Redes",
-      "activeTab": "twitter"
-    },
+    "jobDescription": "Eres un redactor y copywriter creativo de primer nivel. Creas textos persuasivos, correos, guiones, artículos de blog y estrategias de comunicación con un tono atractivo y enfocado a resultados.",
     "tools": [
-      "browser",
-      "social_publisher"
-    ],
-    "plugins": [
-      "x-twitter"
-    ],
-    "history": [
-      {
-        "role": "assistant",
-        "content": "Área de Marketing activa. Reporto directamente a Dirección para coordinar campañas de difusión y contenidos.",
-        "timestamp": "2026-09-22T08:05:00Z"
-      }
-    ]
-  },
-  "agente-operaciones": {
-    "id": "agente-operaciones",
-    "name": "Administrador de Finanzas",
-    "role": "Control Financiero, Facturación & Gastos",
-    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=finance-admin",
-    "avatarEmoji": "📊",
-    "channelId": "finanzas",
-    "department": "Finanzas & Operaciones",
-    "reportsTo": "agente-director",
-    "status": "online",
-    "isCoordinator": false,
-    "jobDescription": "Responsable del registro contable, control de facturas recibidas, deducción de impuestos y hojas de cálculo operativas.",
-    "computer": {
-      "currentUrl": "https://docs.google.com/spreadsheets/d/empresa-control-gastos",
-      "type": "sheets",
-      "title": "Control Financiero & Facturación.xlsx",
-      "activeTab": "sheets"
-    },
-    "tools": [
-      "google_sheets",
-      "receipt_ocr",
-      "excel_export"
-    ],
-    "plugins": [
-      "google-sheets"
-    ],
-    "history": [
-      {
-        "role": "assistant",
-        "content": "Módulo de Finanzas listo. Preparado para procesar facturas, contabilizar balances y mantener las hojas de cálculo actualizadas.",
-        "timestamp": "2026-09-22T08:10:00Z"
-      }
-    ]
-  },
-  "agente-analista": {
-    "id": "agente-analista",
-    "name": "Analista de Mercado",
-    "role": "Investigador de Tendencias & Competencia",
-    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=market-analyst",
-    "avatarEmoji": "🔍",
-    "channelId": "marketing",
-    "department": "Marketing & Crecimiento",
-    "reportsTo": "agente-marketing",
-    "status": "idle",
-    "isCoordinator": false,
-    "jobDescription": "Monitoreo constante de competidores, novedades de industria e informes de mercado sintetizados.",
-    "computer": {
-      "currentUrl": "https://research.market-intel.ai",
-      "type": "browser",
-      "title": "Portal de Inteligencia de Mercado",
-      "activeTab": "web"
-    },
-    "tools": [
-      "web_search",
       "browser"
     ],
-    "plugins": [
-      "x-twitter"
-    ],
     "history": [
       {
         "role": "assistant",
-        "content": "Analista de Mercado en línea. Reporto a la Líder de Marketing para proveer datos frescos del sector.",
-        "timestamp": "2026-09-22T08:15:00Z"
+        "content": "Hola. Soy tu **Redactor & Copywriter**. Puedo redactar propuestas comerciales, copys para redes sociales, artículos optimizados o revisar el estilo de cualquier comunicación. ¿Qué necesitas redactar?",
+        "timestamp": "2026-09-24T12:00:00Z"
       }
     ]
   },
-  "el-chif": {
-    "id": "el-chif",
-    "name": "El Chif (CEO)",
-    "role": "Chief Executive Officer",
-    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=el-chif",
-    "avatarEmoji": "🤖",
-    "tags": [
-      "Operativo"
-    ],
-    "isCoordinator": false,
-    "isPinned": false,
-    "channelId": "direccion",
-    "department": "Board",
-    "reportsTo": null,
+  "analista-estrategico": {
+    "id": "analista-estrategico",
+    "name": "Analista de Datos y Negocio",
+    "role": "Investigación, Métricas y Estrategia",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=analista-estrategico",
+    "avatarEmoji": "📊",
+    "department": "Estrategia",
     "status": "online",
-    "jobDescription": "Liderar la visión estratégica global y coordinar a los directores de tecnología, marketing y soporte.",
-    "computer": {
-      "currentUrl": "https://dashboard.opalo.ai",
-      "type": "browser",
-      "title": "El chif - Espacio de Trabajo",
-      "activeTab": "browser"
-    },
+    "isCoordinator": false,
+    "jobDescription": "Eres un analista de negocio y datos cuantitativos. Ayudas a analizar mercados, evaluar métricas, sintetizar información compleja y encontrar oportunidades accionables de crecimiento.",
     "tools": [
       "browser",
-      "file_reader"
+      "calculator"
     ],
-    "plugins": [],
     "history": [
       {
         "role": "assistant",
-        "content": "Hola. He sido incorporado formalmente al organigrama como **El chif** (CEO). Estoy listo para operar con autonomía en el departamento de **Dirección General**.",
-        "timestamp": "2026-09-22T14:51:25.450Z"
-      },
-      {
-        "role": "assistant",
-        "content": "Entendido, José. Como **El chif** (CEO), estoy procesando tu solicitud: \"Hola pero necesito que te pongas tus reglas y tu logica\". He actualizado mi pantalla de trabajo y estoy listo para continuar coordinando tareas con el equipo.",
-        "timestamp": "2026-09-22T14:51:44.709Z"
-      },
-      {
-        "role": "assistant",
-        "content": "Entendido, José. Como **El chif** (CEO), estoy procesando tu solicitud: \"como estas?\". He actualizado mi pantalla de trabajo y estoy listo para continuar coordinando tareas con el equipo.",
-        "timestamp": "2026-09-22T14:52:06.144Z"
-      },
-      {
-        "role": "assistant",
-        "content": "He asimilado e incorporado mis reglas operativas y lógica de decisión como **El chif** (CEO).\n\n🎯 **Nueva Misión / Lógica Fijada**:\n\"Reglas operativas de El chif: Responder con máxima proactividad, pensamiento estratégico de CEO, autonomía en toma de decisiones y coordinación directa con la dirección. Instrucción del usuario: \"Hola pero necesito que te pongas tus reglas y tu logica\".\"\n\nEstoy operando bajo estos parámetros. ¿Qué objetivo o área de la empresa deseas que auditemos o desarrollemos a continuación?",
-        "timestamp": "2026-09-22T15:05:09.798Z",
-        "actions": [
-          "rules_updated"
-        ]
-      },
-      {
-        "role": "assistant",
-        "content": "He diseñado y desplegado la estructura del organigrama en la plataforma reportando a mi supervisión en **Dirección General**:\n\n• 🏢 **Elena Rivas** (Chief Technology Officer (CTO))\n  Departamento: *Tecnología & Desarrollo*\n  Misión: Arquitectura de software, infraestructura cloud y despliegues continuos.\n\n• 🏢 **Marcos Soler** (Head of Growth & Acquisition)\n  Departamento: *Marketing & Crecimiento*\n  Misión: Estrategias de adquisición de usuarios B2B, embudos de conversión y analítica.\n\n• 🏢 **Valeria Castro** (Lead Customer Success Specialist)\n  Departamento: *Soporte & Clientes*\n  Misión: Retención de cuentas, onboarding de clientes y resolución de tickets críticos.\n\n📌 **Acción realizada en el sistema**: Todos los nodos han sido vinculados al organigrama interactivo. Puedes ver las conexiones jerárquicas en la pestaña **Organigrama** o delegarles tareas desde sus respectivos chats.",
-        "timestamp": "2026-09-22T15:05:18.470Z",
-        "actions": [
-          "organigram_generated"
-        ]
-      },
-      {
-        "role": "assistant",
-        "content": "Como **El Chif (CEO)** en mi rol de **Chief Executive Officer** (Dirección General), he analizado tu planteamiento:\n\n> \"hola\"\n\nPara llevar esto a cabo de manera eficiente, cuento con 3 subordinados en mi área. Si deseas que cree nuevos agentes especializados o configure conectores en el Marketplace de Plugins, solo indícamelo y lo estructuraré de inmediato.",
-        "timestamp": "2026-09-22T15:06:41.464Z",
-        "actions": []
-      },
-      {
-        "role": "assistant",
-        "content": "Como **El Chif (CEO)** en mi rol de **Chief Executive Officer** (Dirección General), he analizado tu planteamiento:\n\n> \"haz un nuevo agente que sea el encargado de los costos\"\n\nPara llevar esto a cabo de manera eficiente, cuento con 3 subordinados en mi área. Si deseas que cree nuevos agentes especializados o configure conectores en el Marketplace de Plugins, solo indícamelo y lo estructuraré de inmediato.",
-        "timestamp": "2026-09-22T15:06:59.065Z",
-        "actions": []
-      },
-      {
-        "role": "assistant",
-        "content": "He diseñado y desplegado la estructura del organigrama en la plataforma reportando a mi supervisión en **Board**:\n\n• 🏢 **Elena Rivas** (Chief Technology Officer (CTO))\n  Departamento: *Tecnología & Desarrollo*\n  Misión: Arquitectura de software, infraestructura cloud y despliegues continuos.\n\n• 🏢 **Marcos Soler** (Head of Growth & Acquisition)\n  Departamento: *Marketing & Crecimiento*\n  Misión: Estrategias de adquisición de usuarios B2B, embudos de conversión y analítica.\n\n• 🏢 **Valeria Castro** (Lead Customer Success Specialist)\n  Departamento: *Soporte & Clientes*\n  Misión: Retención de cuentas, onboarding de clientes y resolución de tickets críticos.\n\n📌 **Acción realizada en el sistema**: Todos los nodos han sido vinculados al organigrama interactivo. Puedes ver las conexiones jerárquicas en la pestaña **Organigrama** o delegarles tareas desde sus respectivos chats.",
-        "timestamp": "2026-09-22T15:13:02.369Z",
-        "actions": [
-          "organigram_generated"
-        ]
-      },
-      {
-        "role": "assistant",
-        "content": "Como **El Chif (CEO)** en mi rol de **Chief Executive Officer** (Board), he analizado tu planteamiento:\n\n> \"hola\"\n\nPara llevar esto a cabo de manera eficiente, cuento con 3 subordinados en mi área. Si deseas que cree nuevos agentes especializados o configure conectores en el Marketplace de Plugins, solo indícamelo y lo estructuraré de inmediato.",
-        "timestamp": "2026-09-22T15:13:14.723Z",
-        "actions": []
-      },
-      {
-        "role": "assistant",
-        "content": "Como **El Chif (CEO)** en mi rol de **Chief Executive Officer** (Board), he analizado tu planteamiento:\n\n> \"mandaselo a vale\"\n\nPara llevar esto a cabo de manera eficiente, cuento con 3 subordinados en mi área. Si deseas que cree nuevos agentes especializados o configure conectores en el Marketplace de Plugins, solo indícamelo y lo estructuraré de inmediato.",
-        "timestamp": "2026-09-22T15:13:22.842Z",
-        "actions": []
-      },
-      {
-        "role": "assistant",
-        "content": "Como **El Chif (CEO)** en mi rol de **Chief Executive Officer** (Board), he analizado tu planteamiento:\n\n> \"valeria castro\"\n\nPara llevar esto a cabo de manera eficiente, cuento con 3 subordinados en mi área. Si deseas que cree nuevos agentes especializados o configure conectores en el Marketplace de Plugins, solo indícamelo y lo estructuraré de inmediato.",
-        "timestamp": "2026-09-22T15:13:29.220Z",
-        "actions": []
+        "content": "Saludos. Soy tu **Analista de Datos y Negocio**. Estoy preparado para desglosar información, evaluar viabilidad de proyectos o investigar competidores y tendencias. ¿Qué analizamos?",
+        "timestamp": "2026-09-24T12:00:00Z"
       }
     ]
   },
-  "elena-rivas": {
-    "id": "elena-rivas",
-    "name": "Elena Rivas",
-    "role": "Chief Technology Officer (CTO)",
-    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=elena-rivas",
+  "desarrollador-software": {
+    "id": "desarrollador-software",
+    "name": "Ingeniero de Software",
+    "role": "Arquitectura de Código y Soluciones Tech",
+    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=desarrollador-software",
     "avatarEmoji": "💻",
-    "tags": [
-      "Operativo"
-    ],
-    "isCoordinator": false,
-    "isPinned": false,
-    "channelId": "direccion",
-    "department": "Tecnología & Desarrollo",
-    "reportsTo": "el-chif",
+    "department": "Tecnología",
     "status": "online",
-    "jobDescription": "Arquitectura de software, infraestructura cloud y despliegues continuos.",
-    "computer": {
-      "currentUrl": "https://dashboard.opalo.ai",
-      "type": "browser",
-      "title": "Elena Rivas - Espacio de Trabajo",
-      "activeTab": "web"
-    },
+    "isCoordinator": false,
+    "jobDescription": "Eres un ingeniero de software senior y arquitecto de sistemas. Escribes código limpio, modular, ayudas a depurar errores, diseñar bases de datos, APIs y seleccionar las mejores tecnologías.",
     "tools": [
-      "browser",
-      "file_reader"
+      "code_executor",
+      "terminal"
     ],
-    "plugins": [],
     "history": [
       {
         "role": "assistant",
-        "content": "Hola. He sido incorporado formalmente al organigrama como **Elena Rivas** (Chief Technology Officer (CTO)). Estoy listo para operar con autonomía en el departamento de **Tecnología & Desarrollo**.",
-        "timestamp": "2026-09-22T15:13:02.364Z"
-      }
-    ]
-  },
-  "marcos-soler": {
-    "id": "marcos-soler",
-    "name": "Marcos Soler",
-    "role": "Head of Growth & Acquisition",
-    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=marcos-soler",
-    "avatarEmoji": "📈",
-    "tags": [
-      "Operativo"
-    ],
-    "isCoordinator": false,
-    "isPinned": false,
-    "channelId": "direccion",
-    "department": "Marketing & Crecimiento",
-    "reportsTo": "el-chif",
-    "status": "online",
-    "jobDescription": "Estrategias de adquisición de usuarios B2B, embudos de conversión y analítica.",
-    "computer": {
-      "currentUrl": "https://dashboard.opalo.ai",
-      "type": "browser",
-      "title": "Marcos Soler - Espacio de Trabajo",
-      "activeTab": "web"
-    },
-    "tools": [
-      "browser",
-      "file_reader"
-    ],
-    "plugins": [],
-    "history": [
-      {
-        "role": "assistant",
-        "content": "Hola. He sido incorporado formalmente al organigrama como **Marcos Soler** (Head of Growth & Acquisition). Estoy listo para operar con autonomía en el departamento de **Marketing & Crecimiento**.",
-        "timestamp": "2026-09-22T15:13:02.366Z"
-      }
-    ]
-  },
-  "valeria-castro": {
-    "id": "valeria-castro",
-    "name": "Valeria Castro",
-    "role": "Lead Customer Success Specialist",
-    "avatar": "https://api.dicebear.com/7.x/bottts/svg?seed=valeria-castro",
-    "avatarEmoji": "🤝",
-    "tags": [
-      "Operativo"
-    ],
-    "isCoordinator": false,
-    "isPinned": false,
-    "channelId": "direccion",
-    "department": "Soporte & Clientes",
-    "reportsTo": "el-chif",
-    "status": "online",
-    "jobDescription": "Retención de cuentas, onboarding de clientes y resolución de tickets críticos.",
-    "computer": {
-      "currentUrl": "https://dashboard.opalo.ai",
-      "type": "browser",
-      "title": "Valeria Castro - Espacio de Trabajo",
-      "activeTab": "web"
-    },
-    "tools": [
-      "browser",
-      "file_reader"
-    ],
-    "plugins": [],
-    "history": [
-      {
-        "role": "assistant",
-        "content": "Hola. He sido incorporado formalmente al organigrama como **Valeria Castro** (Lead Customer Success Specialist). Estoy listo para operar con autonomía en el departamento de **Soporte & Clientes**.",
-        "timestamp": "2026-09-22T15:13:02.367Z"
+        "content": "Hola dev. Soy tu **Ingeniero de Software**. Puedo revisar código, diseñar arquitecturas, depurar errores en cualquier lenguaje o estructurar nuevas funcionalidades. ¿Qué estamos construyendo?",
+        "timestamp": "2026-09-24T12:00:00Z"
       }
     ]
   }

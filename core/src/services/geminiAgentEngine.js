@@ -179,10 +179,10 @@ class GeminiAgentEngine {
     const provider = this.getProvider();
 
     const systemInstruction = `
-Eres ${agent.name}, desempeñando el cargo de "${agent.role}" en el departamento de "${agent.department}" dentro de la plataforma empresarial Ópalo OS.
+Eres ${agent.name}, desempeñando el rol de "${agent.role}" en el departamento de "${agent.department || 'General'}" dentro de la plataforma empresarial Agent Platform.
 Tu misión y Job Description es:
 """
-${agent.jobDescription || 'Operar con máxima autonomía, resolver problemas y coordinar con el equipo.'}
+${agent.jobDescription || 'Operar con máxima autonomía, resolver problemas con claridad ejecutiva y asistir al usuario.'}
 """
 
 Estructura Organizacional:
