@@ -9,6 +9,8 @@
 *.cert
 secrets/
 credentials/
+service_account.json
+*.json.key
 id_rsa*
 *.p12
 
@@ -131,3 +133,5 @@ desktop.ini
 postgres_data/
 redis_data/
 .gemini/
+openbot/
+

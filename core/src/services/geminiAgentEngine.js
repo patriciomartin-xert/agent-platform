@@ -4,12 +4,16 @@ const agentTeamService = require('./agentTeamService');
 
 class GeminiAgentEngine {
   constructor() {
-    this.primaryModel = 'gemini-1.5-flash';
-    this.fallbackModel = 'gemini-2.0-flash';
+    this.primaryModel = 'gemini-3.8-flash';
+    this.fallbackModels = ['gemini-3.8-flash', 'gemini-3.6-flash', 'gemini-2.5-flash'];
   }
 
-  getGenAI() {
-    const key = process.env.GEMINI_API_KEY || config.GEMINI_API_KEY;
+  getProvider() {
+    return (process.env.AI_PROVIDER || config.AI_PROVIDER || 'gemini').toLowerCase().trim();
+  }
+
+  getGenAI(overrideKey = null) {
+    const key = overrideKey || process.env.GEMINI_API_KEY || config.GEMINI_API_KEY;
     if (!key || key.trim() === '') return null;
     try {
       return new GoogleGenerativeAI(key.trim());
@@ -19,39 +23,151 @@ class GeminiAgentEngine {
     }
   }
 
-  async testConnection(apiKey) {
-    if (!apiKey || !apiKey.trim()) {
-      return { success: false, error: 'No se proporcionó ninguna API Key.' };
-    }
-    const cleanKey = apiKey.trim();
+  async testConnection(options) {
+    // Support either object { provider, apiKey, model, baseUrl } or legacy string apiKey
+    let provider = 'gemini';
+    let apiKey = '';
+    let model = '';
+    let baseUrl = '';
 
-    if (!cleanKey.startsWith('AIzaSy')) {
+    if (typeof options === 'string') {
+      apiKey = options.trim();
+    } else if (options && typeof options === 'object') {
+      provider = (options.provider || 'gemini').toLowerCase().trim();
+      apiKey = (options.apiKey || '').trim();
+      model = (options.model || '').trim();
+      baseUrl = (options.baseUrl || '').trim();
+    }
+
+    if (!apiKey) {
+      // Check environment variables if not passed
+      if (provider === 'gemini') apiKey = process.env.GEMINI_API_KEY || config.GEMINI_API_KEY || '';
+      else if (provider === 'openai') apiKey = process.env.OPENAI_API_KEY || config.OPENAI_API_KEY || '';
+      else if (provider === 'anthropic') apiKey = process.env.ANTHROPIC_API_KEY || config.ANTHROPIC_API_KEY || '';
+      else if (provider === 'custom') apiKey = process.env.CUSTOM_AI_API_KEY || config.CUSTOM_AI_API_KEY || '';
+    }
+
+    if (!apiKey) {
+      return { success: false, error: `No se proporcionó ninguna API Key para el proveedor "${provider}".` };
+    }
+
+    // 1. TEST GOOGLE GEMINI
+    if (provider === 'gemini') {
+      const candidateModels = model ? [model, ...this.fallbackModels] : this.fallbackModels;
+      let lastError = null;
+
+      for (const modelName of candidateModels) {
+        try {
+          const client = new GoogleGenerativeAI(apiKey);
+          const modelInstance = client.getGenerativeModel({ model: modelName });
+          const result = await modelInstance.generateContent('Responde en una sola palabra: "Conectado"');
+          const text = result.response.text();
+          this.primaryModel = modelName;
+          return {
+            success: true,
+            provider: 'gemini',
+            model: modelName,
+            message: `Conexión exitosa con Google Gemini (${modelName}): ${text.trim()}`
+          };
+        } catch (err) {
+          lastError = err.message;
+        }
+      }
+
       return {
         success: false,
-        error: 'Las claves de Google AI Studio deben comenzar con el prefijo "AIzaSy...". La clave ingresada no pertenece a un proyecto activo de Google AI Studio. Puedes obtener una clave gratuita en https://aistudio.google.com/app/apikey'
+        provider: 'gemini',
+        error: `Error conectando con Google Gemini API: ${lastError || 'Verifica que la clave esté activa en Google AI Studio.'}`
       };
     }
 
-    const candidateModels = ['gemini-1.5-flash', 'gemini-2.0-flash', 'gemini-1.5-pro'];
-    let lastError = null;
-
-    for (const modelName of candidateModels) {
+    // 2. TEST OPENAI
+    if (provider === 'openai') {
+      const targetModel = model || 'gpt-4o-mini';
       try {
-        const client = new GoogleGenerativeAI(cleanKey);
-        const model = client.getGenerativeModel({ model: modelName });
-        const result = await model.generateContent('Responde en una sola palabra: "Conectado"');
-        const text = result.response.text();
-        this.primaryModel = modelName;
-        return { success: true, message: `Conexión exitosa con Google Gemini (${modelName}): ${text.trim()}` };
+        const response = await fetch('https://api.openai.com/v1/chat/completions', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: targetModel,
+            messages: [{ role: 'user', content: 'Responde únicamente la palabra: Conectado' }],
+            max_tokens: 10
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          return { success: false, provider: 'openai', error: data.error?.message || `HTTP ${response.status}` };
+        }
+        const text = data.choices?.[0]?.message?.content || 'OK';
+        return { success: true, provider: 'openai', model: targetModel, message: `Conexión exitosa con OpenAI (${targetModel}): ${text.trim()}` };
       } catch (err) {
-        lastError = err.message;
+        return { success: false, provider: 'openai', error: `Error conectando con OpenAI: ${err.message}` };
       }
     }
 
-    return {
-      success: false,
-      error: `Error conectando con Google Gemini API: ${lastError || 'Verifica que la clave tenga la API "Generative Language API" activada en tu cuenta de Google.'}`
-    };
+    // 3. TEST ANTHROPIC (CLAUDE)
+    if (provider === 'anthropic') {
+      const targetModel = model || 'claude-3-5-haiku-20241022';
+      try {
+        const response = await fetch('https://api.anthropic.com/v1/messages', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'x-api-key': apiKey,
+            'anthropic-version': '2023-06-01'
+          },
+          body: JSON.stringify({
+            model: targetModel,
+            max_tokens: 10,
+            messages: [{ role: 'user', content: 'Responde únicamente la palabra: Conectado' }]
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          return { success: false, provider: 'anthropic', error: data.error?.message || `HTTP ${response.status}` };
+        }
+        const text = data.content?.[0]?.text || 'OK';
+        return { success: true, provider: 'anthropic', model: targetModel, message: `Conexión exitosa con Anthropic (${targetModel}): ${text.trim()}` };
+      } catch (err) {
+        return { success: false, provider: 'anthropic', error: `Error conectando con Anthropic: ${err.message}` };
+      }
+    }
+
+    // 4. TEST CUSTOM / DEEPSEEK / OPENAI-COMPATIBLE
+    if (provider === 'custom') {
+      const targetUrl = (baseUrl || 'https://api.deepseek.com/v1').replace(/\/+$/, '');
+      const targetModel = model || 'deepseek-chat';
+      try {
+        const response = await fetch(`${targetUrl}/chat/completions`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${apiKey}`
+          },
+          body: JSON.stringify({
+            model: targetModel,
+            messages: [{ role: 'user', content: 'Responde únicamente la palabra: Conectado' }],
+            max_tokens: 10
+          })
+        });
+
+        const data = await response.json();
+        if (!response.ok) {
+          return { success: false, provider: 'custom', error: data.error?.message || `HTTP ${response.status}` };
+        }
+        const text = data.choices?.[0]?.message?.content || 'OK';
+        return { success: true, provider: 'custom', model: targetModel, message: `Conexión exitosa con Endpoint Compatible (${targetModel}): ${text.trim()}` };
+      } catch (err) {
+        return { success: false, provider: 'custom', error: `Error conectando con Endpoint Personalizado: ${err.message}` };
+      }
+    }
+
+    return { success: false, error: `Proveedor "${provider}" no reconocido.` };
   }
 
   async executeAgentTurn({ agent, userMessage, conversationHistory = [] }) {
@@ -60,13 +176,9 @@ class GeminiAgentEngine {
     const superior = agent.reportsTo ? allAgents[agent.reportsTo] : null;
     const subordinates = agentList.filter(a => a.reportsTo === agent.id);
 
-    // 1. Try real Gemini API if key is present
-    const genAI = this.getGenAI();
-    if (genAI) {
-      try {
-        const model = genAI.getGenerativeModel({ model: this.primaryModel });
+    const provider = this.getProvider();
 
-        const systemInstruction = `
+    const systemInstruction = `
 Eres ${agent.name}, desempeñando el cargo de "${agent.role}" en el departamento de "${agent.department}" dentro de la plataforma empresarial Ópalo OS.
 Tu misión y Job Description es:
 """
@@ -101,35 +213,157 @@ Reglas de comunicación:
 - Nunca inventes que eres una IA genérica ni uses plantillas repetitivas de confirmación.
 `.trim();
 
-        // Build recent conversation context
-        const formattedHistory = conversationHistory.slice(-8).map(m => {
-          return `${m.role === 'user' ? 'Usuario' : agent.name}: ${m.content}`;
-        }).join('\n');
+    // 1. Try LLM Call based on configured provider
+    let rawReply = null;
 
-        const prompt = `${systemInstruction}\n\nHistorial reciente:\n${formattedHistory}\n\nUsuario: ${userMessage}\n${agent.name}:`;
+    if (provider === 'gemini') {
+      const genAI = this.getGenAI();
+      if (genAI) {
+        try {
+          const modelName = this.primaryModel || 'gemini-3.8-flash';
+          const modelInstance = genAI.getGenerativeModel({ model: modelName });
 
-        const result = await model.generateContent(prompt);
-        let rawReply = result.response.text();
+          const formattedHistory = conversationHistory.slice(-8).map(m => {
+            return `${m.role === 'user' ? 'Usuario' : agent.name}: ${m.content}`;
+          }).join('\n');
 
-        // Check if agent generated agents to incorporate into organigram
-        const createdAgents = this._extractAndCreateAgents(rawReply, agent.id);
-        const cleanReply = rawReply.replace(/<<<GENERATE_AGENTS:[\s\S]*?>>>/g, '').trim();
-
-        let finalReply = cleanReply;
-        if (createdAgents.length > 0) {
-          finalReply += `\n\n🏢 **Actualización de Organigrama**: He incorporado exitosamente **${createdAgents.length} nuevo(s) agente(s)** al equipo:\n` +
-            createdAgents.map(a => `• **${a.name}** (${a.role}) - Departamento: *${a.department}*`).join('\n') +
-            `\n\nPuedes consultar sus tarjetas en la vista de **Organigrama** o abrir sus chats en la barra lateral.`;
+          const prompt = `${systemInstruction}\n\nHistorial reciente:\n${formattedHistory}\n\nUsuario: ${userMessage}\n${agent.name}:`;
+          const result = await modelInstance.generateContent(prompt);
+          rawReply = result.response.text();
+        } catch (err) {
+          console.warn('[GeminiAgentEngine] Gemini primary model error, trying fallback:', err.message);
+          try {
+            const fallbackInstance = genAI.getGenerativeModel({ model: 'gemini-3.6-flash' });
+            const prompt = `${systemInstruction}\n\nUsuario: ${userMessage}\n${agent.name}:`;
+            const result = await fallbackInstance.generateContent(prompt);
+            rawReply = result.response.text();
+          } catch (e2) {
+            console.warn('[GeminiAgentEngine] Gemini fallback error:', e2.message);
+          }
         }
+      }
+    } else if (provider === 'openai') {
+      const apiKey = process.env.OPENAI_API_KEY || config.OPENAI_API_KEY;
+      if (apiKey) {
+        try {
+          const messages = [
+            { role: 'system', content: systemInstruction },
+            ...conversationHistory.slice(-8).map(m => ({
+              role: m.role === 'user' ? 'user' : 'assistant',
+              content: m.content
+            })),
+            { role: 'user', content: userMessage }
+          ];
 
-        return { reply: finalReply, actions: createdAgents.length > 0 ? ['agents_created'] : [] };
-      } catch (err) {
-        console.warn('[GeminiAgentEngine] Error calling Gemini API:', err.message);
-        // Fall through to smart intelligent simulation
+          const response = await fetch('https://api.openai.com/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey.trim()}`
+            },
+            body: JSON.stringify({
+              model: process.env.OPENAI_MODEL || 'gpt-4o-mini',
+              messages
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            rawReply = data.choices?.[0]?.message?.content || null;
+          }
+        } catch (err) {
+          console.warn('[GeminiAgentEngine] OpenAI error:', err.message);
+        }
+      }
+    } else if (provider === 'anthropic') {
+      const apiKey = process.env.ANTHROPIC_API_KEY || config.ANTHROPIC_API_KEY;
+      if (apiKey) {
+        try {
+          const messages = [
+            ...conversationHistory.slice(-8).map(m => ({
+              role: m.role === 'user' ? 'user' : 'assistant',
+              content: m.content
+            })),
+            { role: 'user', content: userMessage }
+          ];
+
+          const response = await fetch('https://api.anthropic.com/v1/messages', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'x-api-key': apiKey.trim(),
+              'anthropic-version': '2023-06-01'
+            },
+            body: JSON.stringify({
+              model: process.env.ANTHROPIC_MODEL || 'claude-3-5-haiku-20241022',
+              system: systemInstruction,
+              max_tokens: 1500,
+              messages
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            rawReply = data.content?.[0]?.text || null;
+          }
+        } catch (err) {
+          console.warn('[GeminiAgentEngine] Anthropic error:', err.message);
+        }
+      }
+    } else if (provider === 'custom') {
+      const apiKey = process.env.CUSTOM_AI_API_KEY || config.CUSTOM_AI_API_KEY;
+      const baseUrl = (process.env.CUSTOM_AI_BASE_URL || config.CUSTOM_AI_BASE_URL || 'https://api.deepseek.com/v1').replace(/\/+$/, '');
+      const model = process.env.CUSTOM_AI_MODEL || config.CUSTOM_AI_MODEL || 'deepseek-chat';
+
+      if (apiKey) {
+        try {
+          const messages = [
+            { role: 'system', content: systemInstruction },
+            ...conversationHistory.slice(-8).map(m => ({
+              role: m.role === 'user' ? 'user' : 'assistant',
+              content: m.content
+            })),
+            { role: 'user', content: userMessage }
+          ];
+
+          const response = await fetch(`${baseUrl}/chat/completions`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey.trim()}`
+            },
+            body: JSON.stringify({
+              model,
+              messages
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            rawReply = data.choices?.[0]?.message?.content || null;
+          }
+        } catch (err) {
+          console.warn('[GeminiAgentEngine] Custom LLM error:', err.message);
+        }
       }
     }
 
-    // 2. High-fidelity intelligent contextual engine (when key is missing or invalid)
+    // If real LLM returned a reply, extract any created agents and return
+    if (rawReply && rawReply.trim()) {
+      const createdAgents = this._extractAndCreateAgents(rawReply, agent.id);
+      const cleanReply = rawReply.replace(/<<<GENERATE_AGENTS:[\s\S]*?>>>/g, '').trim();
+
+      let finalReply = cleanReply;
+      if (createdAgents.length > 0) {
+        finalReply += `\n\n🏢 **Actualización de Organigrama**: He incorporado exitosamente **${createdAgents.length} nuevo(s) agente(s)** al equipo:\n` +
+          createdAgents.map(a => `• **${a.name}** (${a.role}) - Departamento: *${a.department}*`).join('\n') +
+          `\n\nPuedes consultar sus tarjetas en la vista de **Organigrama** o abrir sus chats en la barra lateral.`;
+      }
+
+      return { reply: finalReply, actions: createdAgents.length > 0 ? ['agents_created'] : [] };
+    }
+
+    // 2. High-fidelity intelligent contextual engine (contingency fallback when API key is missing or invalid)
     return this._runIntelligentSimulation(agent, userMessage, superior, subordinates);
   }
 
@@ -171,7 +405,6 @@ Reglas de comunicación:
       lower.includes('crea') && (lower.includes('agente') || lower.includes('organigrama') || lower.includes('equipo')) ||
       lower.includes('organigrama') || lower.includes('crear equipo') || lower.includes('estructura la empresa')
     ) {
-      // Determine company context or generate comprehensive org chart
       const isTech = lower.includes('tech') || lower.includes('software') || lower.includes('saas') || lower.includes('ia');
       const isEcommerce = lower.includes('tienda') || lower.includes('ecommerce') || lower.includes('ventas');
 
@@ -189,7 +422,6 @@ Reglas de comunicación:
           { name: 'Lucía Méndez', role: 'Coordinadora de Atención al Comprador', department: 'Soporte & Clientes', avatarEmoji: '💬', jobDescription: 'Soporte omnicanal post-venta vía WhatsApp Business y chat en vivo.' }
         ];
       } else {
-        // Universal executive team
         templates = [
           { name: 'Director de Estrategia & Crecimiento', role: 'Growth Strategist', department: 'Marketing & Crecimiento', avatarEmoji: '🚀', jobDescription: 'Posicionamiento de marca, adquisición de clientes y análisis de mercado.' },
           { name: 'Controlador de Operaciones & Finanzas', role: 'Operations & Finance Manager', department: 'Finanzas & Operaciones', avatarEmoji: '📊', jobDescription: 'Supervisión de flujo de caja, conciliación de facturas y control de costes.' },
@@ -203,7 +435,7 @@ Reglas de comunicación:
           name: t.name,
           role: t.role,
           department: t.department,
-          reportsTo: agent.id, // They report to this agent!
+          reportsTo: agent.id,
           jobDescription: t.jobDescription,
           avatarEmoji: t.avatarEmoji
         });
@@ -219,7 +451,6 @@ Reglas de comunicación:
 
     // SCENARIO B: SETTING RULES, LOGIC, OR JOB DESCRIPTION
     if (lower.includes('regla') || lower.includes('logica') || lower.includes('mision') || lower.includes('rol') || lower.includes('instruccion')) {
-      // Update the agent's job description with user's instructions if provided
       const newMission = `Reglas operativas de ${agent.name}: Responder con máxima proactividad, pensamiento estratégico de ${agent.role}, autonomía en toma de decisiones y coordinación directa con la dirección. Instrucción del usuario: "${userMessage}".`;
       agentTeamService.updateAgent(agent.id, { jobDescription: newMission });
 
@@ -231,7 +462,6 @@ Reglas de comunicación:
     }
 
     // SCENARIO C: STANDARD STRATEGIC EXECUTIVE RESPONSE
-    let superiorText = superior ? `mi superior ${superior.name}` : `la Dirección General`;
     const reply = `Como **${agent.name}** en mi rol de **${agent.role}** (${agent.department}), he analizado tu planteamiento:\n\n` +
       `> "${userMessage}"\n\n` +
       `Para llevar esto a cabo de manera eficiente, cuento con ${subordinates.length > 0 ? `${subordinates.length} subordinados en mi área` : 'plena capacidad de generar el equipo y organigrama que requieras'}. Si deseas que cree nuevos agentes especializados o configure conectores en el Marketplace de Plugins, solo indícamelo y lo estructuraré de inmediato.`;

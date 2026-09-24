@@ -180,14 +180,23 @@ class GrokBotController {
   // Get AI configuration status
   async getAiConfig(req, res) {
     try {
-      const key = process.env.GEMINI_API_KEY || '';
+      const provider = (process.env.AI_PROVIDER || 'gemini').toLowerCase();
+      let key = '';
+      if (provider === 'gemini') key = process.env.GEMINI_API_KEY || '';
+      else if (provider === 'openai') key = process.env.OPENAI_API_KEY || '';
+      else if (provider === 'anthropic') key = process.env.ANTHROPIC_API_KEY || '';
+      else if (provider === 'custom') key = process.env.CUSTOM_AI_API_KEY || '';
+
       const hasKey = key.trim().length > 0;
       const keyMasked = hasKey ? `${key.substring(0, 6)}...${key.substring(key.length - 4)}` : '';
+
       return res.json({
         success: true,
         hasKey,
         keyMasked,
-        provider: 'Google Gemini (Google AI Studio)'
+        provider,
+        model: process.env.CUSTOM_AI_MODEL || (provider === 'gemini' ? 'gemini-3.8-flash' : (provider === 'openai' ? 'gpt-4o-mini' : 'claude-3-5-haiku-20241022')),
+        baseUrl: process.env.CUSTOM_AI_BASE_URL || ''
       });
     } catch (err) {
       return res.status(500).json({ success: false, error: err.message });
@@ -197,18 +206,42 @@ class GrokBotController {
   // Update AI configuration (saves to .env and runtime)
   async updateAiConfig(req, res) {
     try {
-      const { apiKey } = req.body;
+      const { provider = 'gemini', apiKey, model, baseUrl } = req.body;
       if (!apiKey || !apiKey.trim()) {
         return res.status(400).json({ success: false, error: 'La API Key no puede estar vacía' });
       }
 
       const cleanKey = apiKey.trim();
-      process.env.GEMINI_API_KEY = cleanKey;
+      const cleanProvider = (provider || 'gemini').toLowerCase().trim();
+      process.env.AI_PROVIDER = cleanProvider;
+
+      if (cleanProvider === 'gemini') process.env.GEMINI_API_KEY = cleanKey;
+      else if (cleanProvider === 'openai') process.env.OPENAI_API_KEY = cleanKey;
+      else if (cleanProvider === 'anthropic') process.env.ANTHROPIC_API_KEY = cleanKey;
+      else if (cleanProvider === 'custom') {
+        process.env.CUSTOM_AI_API_KEY = cleanKey;
+        if (baseUrl) process.env.CUSTOM_AI_BASE_URL = baseUrl.trim();
+        if (model) process.env.CUSTOM_AI_MODEL = model.trim();
+      }
 
       const fs = require('fs');
       const path = require('path');
-      const envContent = `PORT=3000\nGEMINI_API_KEY=${cleanKey}\n`;
+      const port = process.env.PORT || 3005;
 
+      const envLines = [
+        `# Ópalo AI Platform Configuration`,
+        `PORT=${port}`,
+        `AI_PROVIDER=${cleanProvider}`
+      ];
+      if (process.env.GEMINI_API_KEY) envLines.push(`GEMINI_API_KEY=${process.env.GEMINI_API_KEY}`);
+      if (process.env.OPENAI_API_KEY) envLines.push(`OPENAI_API_KEY=${process.env.OPENAI_API_KEY}`);
+      if (process.env.ANTHROPIC_API_KEY) envLines.push(`ANTHROPIC_API_KEY=${process.env.ANTHROPIC_API_KEY}`);
+      if (process.env.CUSTOM_AI_BASE_URL) envLines.push(`CUSTOM_AI_BASE_URL=${process.env.CUSTOM_AI_BASE_URL}`);
+      if (process.env.CUSTOM_AI_API_KEY) envLines.push(`CUSTOM_AI_API_KEY=${process.env.CUSTOM_AI_API_KEY}`);
+      if (process.env.CUSTOM_AI_MODEL) envLines.push(`CUSTOM_AI_MODEL=${process.env.CUSTOM_AI_MODEL}`);
+      envLines.push('');
+
+      const envContent = envLines.join('\n');
       const coreEnvPath = path.join(__dirname, '../../../core/.env');
       const rootEnvPath = path.join(__dirname, '../../../../.env');
 
@@ -217,12 +250,18 @@ class GrokBotController {
 
       // Test connection immediately
       const geminiAgentEngine = require('../services/geminiAgentEngine');
-      const testResult = await geminiAgentEngine.testConnection(cleanKey);
+      const testResult = await geminiAgentEngine.testConnection({
+        provider: cleanProvider,
+        apiKey: cleanKey,
+        model,
+        baseUrl
+      });
 
       return res.json({
         success: true,
         saved: true,
         testResult,
+        provider: cleanProvider,
         keyMasked: `${cleanKey.substring(0, 6)}...${cleanKey.substring(cleanKey.length - 4)}`
       });
     } catch (err) {
@@ -234,8 +273,13 @@ class GrokBotController {
   async testAiConnection(req, res) {
     try {
       const geminiAgentEngine = require('../services/geminiAgentEngine');
-      const key = req.body.apiKey || process.env.GEMINI_API_KEY;
-      const testResult = await geminiAgentEngine.testConnection(key);
+      const { provider = 'gemini', apiKey, model, baseUrl } = req.body;
+      const testResult = await geminiAgentEngine.testConnection({
+        provider,
+        apiKey,
+        model,
+        baseUrl
+      });
       return res.json(testResult);
     } catch (err) {
       return res.status(500).json({ success: false, error: err.message });
